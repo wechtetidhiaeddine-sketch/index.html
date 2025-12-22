@@ -1,79 +1,42 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>محرك بحث الأنمي | Ultimate</title>
-  <style>
-    :root{
-      --bg-overlay: rgba(0,0,0,.7);
-      --card-bg:#fff;
-      --text:#fff;
-    }
-    body.light{
-      --bg-overlay: rgba(255,255,255,.85);
-      --card-bg:#f5f5f5;
-      --text:#000;
-    }
-    body{
-      margin:0;min-height:100vh;font-family:Arial,sans-serif;
-      background:url('https://wallpapercave.com/wp/wp6391028.jpg') center/cover no-repeat;
-      display:flex;justify-content:center;align-items:center;
-    }
-    .overlay{background:var(--bg-overlay);width:100%;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:25px}
-    h1{color:var(--text)}
-    .controls{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
-    input,select,button{padding:12px;border-radius:10px;border:none;font-size:15px}
-    button{cursor:pointer;background:#ff4757;color:#fff}
-    .results{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:15px;width:100%;max-width:1100px}
-    .card{background:var(--card-bg);border-radius:14px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.4);cursor:pointer;transition:.2s}
-    .card:hover{transform:scale(1.05)}
-    .card img{width:100%;height:230px;object-fit:cover}
-    .card p{margin:8px;font-weight:bold}
-    .loader{color:var(--text);margin:20px;display:none}
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);justify-content:center;align-items:center}
-    .modal-content{background:#fff;border-radius:16px;max-width:650px;width:100%;padding:20px;position:relative}
-    .close{position:absolute;top:10px;left:15px;cursor:pointer}
-  </style>
-</head>
-<body>
-<div class="overlay">
-  <h1>🎌 محرك بحث الأنمي</h1>
-  <div class="controls">
-    <input id="q" placeholder="Naruto" onkeypress="if(event.key==='Enter')search()">
-    <select id="type"><option value="">الكل</option><option value="tv">TV</option><option value="movie">Movie</option></select>
-    <button onclick="search()">بحث</button>
-    <button onclick="toggleMode()">🌗</button>
-  </div>
-  <div class="loader" id="loader">⏳ جاري البحث...</div>
-  <div class="results" id="results"></div>
-</div>
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <span class="close" onclick="modal.style.display='none'">✖</span>
-    <img id="mimg" style="width:100%;border-radius:12px">
-    <h2 id="mtitle"></h2>
-    <p id="minfo"></p>
-  </div>
-</div>
-<script>
-let page=1;
-async function search(){
-  const q=document.getElementById('q').value.trim();
-  if(!q) return;
-  const type=document.getElementById('type').value;
-  results.innerHTML='';loader.style.display='block';
-  const r=await fetch(`https://api.jikan.moe/v4/anime?q=${q}&type=${type}&page=${page}`);
-  const d=await r.json();loader.style.display='none';
-  d.data.forEach(a=>{
-    const c=document.createElement('div');c.className='card';
-    c.innerHTML=`<img src="${a.images.jpg.large_image_url}"><p>${a.title}</p>`;
-    c.onclick=()=>show(a);results.appendChild(c);
-  });
+<meta charset="UTF-8">
+<title>Anime Search</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: url("https://wallpapercave.com/wp/wp5128415.jpg") no-repeat center center/cover;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-function show(a){mimg.src=a.images.jpg.large_image_url;mtitle.innerText=a.title;minfo.innerText=a.synopsis||'لا يوجد وصف';modal.style.display='flex'}
-function toggleMode(){document.body.classList.toggle('light')}
-</script>
+
+.box {
+  background: rgba(0,0,0,0.7);
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  width: 300px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+  <div class="box">
+    <h2 style="color:white">🎌 Anime App</h2>
+    <input type="text" placeholder="اكتب اسم أنمي">
+  </div>
 </body>
 </html>
-
