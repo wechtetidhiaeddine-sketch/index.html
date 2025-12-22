@@ -32,11 +32,24 @@ input {
 }
 </style>
 </head>
-
 <body>
   <div class="box">
     <h2 style="color:white">🎌 Anime App</h2>
     <input type="text" placeholder="اكتب اسم أنمي">
   </div>
 </body>
+  <script>
+const input = document.querySelector("input");
+
+input.addEventListener("keypress", async function(e) {
+  if (e.key === "Enter") {
+    const query = input.value;
+    const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}`);
+    const data = await res.json();
+
+    alert("تم العثور على: " + data.data[0].title);
+  }
+});
+</script>
 </html>
+
