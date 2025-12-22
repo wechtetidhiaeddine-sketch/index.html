@@ -1,2 +1,1 @@
-# anime.html
-app for anime
+# anime
