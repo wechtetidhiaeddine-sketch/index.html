@@ -37,6 +37,34 @@ input {
     <h2 style="color:white">🎌 Anime App</h2>
     <input type="text" placeholder="اكتب اسم أنمي">
   </div>
+  <div id="results" class="results"></div>
+  <script>
+const input = document.querySelector("input");
+const results = document.getElementById("results");
+
+input.addEventListener("keypress", async function(e) {
+  if (e.key === "Enter") {
+    results.innerHTML = "";
+    const query = input.value;
+
+    const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}`);
+    const data = await res.json();
+
+    data.data.slice(0, 8).forEach(anime => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <img src="${anime.images.jpg.image_url}">
+        <p>${anime.title}</p>
+      `;
+
+      results.appendChild(card);
+    });
+  }
+});
+</script>
+
 </body>
   <script>
 const input = document.querySelector("input");
@@ -52,4 +80,5 @@ input.addEventListener("keypress", async function(e) {
 });
 </script>
 </html>
+
 
