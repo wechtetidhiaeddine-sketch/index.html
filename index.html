@@ -7,7 +7,7 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: url("https://wallpapercave.com/wp/wp5128415.jpg") no-repeat center center/cover;
   min-height: 100vh;
   display: flex;
@@ -16,11 +16,11 @@ body {
 }
 
 .box {
-  background: rgba(0,0,0,0.7);
-  padding: 30px;
+  background: rgba(0,0,0,0.75);
+  padding: 25px;
   border-radius: 15px;
+  width: 340px;
   text-align: center;
-  width: 320px;
   color: white;
 }
 
@@ -30,6 +30,7 @@ input {
   border-radius: 8px;
   border: none;
   margin-top: 10px;
+  outline: none;
 }
 
 .results {
@@ -51,6 +52,21 @@ input {
   height: 150px;
   object-fit: cover;
 }
+
+button {
+  background: #ff3d3d;
+  color: white;
+  border: none;
+  padding: 6px;
+  margin: 5px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+button:hover {
+  background: #ff1a1a;
+}
 </style>
 </head>
 
@@ -68,24 +84,38 @@ const results = document.getElementById("results");
 
 input.addEventListener("keydown", async (e) => {
   if (e.key === "Enter") {
-    results.innerHTML = "⏳ جاري البحث...";
     const query = input.value.trim();
     if (!query) return;
 
-    const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}`);
-    const data = await res.json();
+    results.innerHTML = "⏳ جاري البحث...";
 
-    results.innerHTML = "";
+    try {
+      const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}`);
+      const data = await res.json();
 
-    data.data.slice(0, 6).forEach(anime => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <img src="${anime.images.jpg.image_url}">
-        <p>${anime.title}</p>
-      `;
-      results.appendChild(card);
-    });
+      results.innerHTML = "";
+
+      data.data.slice(0, 6).forEach(anime => {
+        const trailer = anime.trailer?.url;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <img src="${anime.images.jpg.image_url}">
+          <p>${anime.title}</p>
+          ${
+            trailer
+              ? `<button onclick="window.open('${trailer}', '_blank')">▶️ Trailer</button>`
+              : `<p style="font-size:11px">لا يوجد Trailer</p>`
+          }
+        `;
+
+        results.appendChild(card);
+      });
+    } catch (err) {
+      results.innerHTML = "❌ حصل خطأ، حاول مرة أخرى";
+    }
   }
 });
 </script>
