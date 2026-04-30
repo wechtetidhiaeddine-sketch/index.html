@@ -68,7 +68,9 @@ const API = "https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
 async function search() {
  const q = document.getElementById("search").value;
- const res = await fetch(API+q);
+ if(!q) return;
+
+ const res = await fetch(API + encodeURIComponent(q));
  const data = await res.json();
 
  document.getElementById("results").innerHTML = `
@@ -85,7 +87,6 @@ async function search() {
 function aiExplain(topic){
  document.getElementById("results").innerHTML += `
  <div class='card'>🤖 ${topic} est largement utilisé dans le développement moderne.</div>`;
-} is widely used in modern development.</div>`;
 }
 
 function voice(){
@@ -101,56 +102,56 @@ async function chatAI(){
  const input = document.getElementById("chatInput").value;
  const chatDiv = document.getElementById("chat");
 
+ if(!input) return;
+
  chatDiv.innerHTML += `<p>🧑 ${input}</p>`;
 
  try {
-   // استخدام API مجاني للترجمة/الرد (فرنسي)
    const res = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(input) + "&langpair=en|fr");
    const data = await res.json();
-
    const reply = data.responseData.translatedText;
 
    chatDiv.innerHTML += `<p>🤖 AI (FR): ${reply}</p>`;
-
  } catch (e) {
    chatDiv.innerHTML += `<p>❌ Erreur</p>`;
  }
-}</p>`;
- document.getElementById("chat").innerHTML += `<p>🤖 AI: This is a smart answer about ${input}</p>`;
 }
 
 function saveFav(item){
- let fav = JSON.parse(localStorage.getItem("fav")||"[]");
+ let fav = JSON.parse(localStorage.getItem("fav") || "[]");
  fav.push(item);
  localStorage.setItem("fav", JSON.stringify(fav));
  loadFav();
 }
 
 function loadFav(){
- let fav = JSON.parse(localStorage.getItem("fav")||"[]");
- document.getElementById("fav").innerHTML = fav.map(f=>`<div>${f}</div>`).join("");
+ let fav = JSON.parse(localStorage.getItem("fav") || "[]");
+ document.getElementById("fav").innerHTML = fav.map(f => `<div>${f}</div>`).join("");
 }
 loadFav();
 
 function compare(){
  const a = document.getElementById("c1").value;
  const b = document.getElementById("c2").value;
+
+ if(!a || !b) return;
+
  document.getElementById("compare").innerHTML = `
- ${a} vs ${b} : ces deux langages sont puissants mais diffèrent selon leurs usages.`;;
+ ${a} vs ${b} : ces deux langages sont puissants mais diffèrent selon leurs usages.`;
 }
 
 function quiz(topic){
  document.getElementById("quiz").innerHTML = `
  <div>${topic} est utilisé pour ?</div>
  <button onclick="alert('Programmation')">Réponse</button>`;
-} is used for?</div>
- <button onclick="alert('Programming')">Answer</button>`;
 }
 
 function login(){
  const user = document.getElementById("user").value;
+ if(!user) return;
+
  localStorage.setItem("user", user);
- document.getElementById("userStatus").innerText = "Logged in as "+user;
+ document.getElementById("userStatus").innerText = "Logged in as " + user;
 }
 </script>
 
@@ -158,3 +159,6 @@ function login(){
 🌍 DEPLOY:
 Vercel / Netlify
 -->
+
+</body>
+</html>
