@@ -2,38 +2,88 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Programming Search AI Ultra</title>
+<title>Pro Max AI Search</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {margin:0;font-family:Arial;background:#0f2027;color:white}
-.container {max-width:700px;margin:auto;padding:20px}
-.search-box {display:flex;background:white;border-radius:30px;padding:5px}
-input {flex:1;border:none;outline:none;padding:12px;border-radius:30px}
-button {background:#4285f4;color:white;border:none;padding:10px;border-radius:50%;cursor:pointer}
-.card {background:rgba(255,255,255,0.1);padding:15px;border-radius:10px;margin-top:10px}
-.row {display:flex;gap:10px;flex-wrap:wrap}
-.small {font-size:12px;opacity:0.8}
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+}
+
+.container{max-width:800px;margin:auto;padding:20px}
+
+.card{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(12px);
+border:1px solid rgba(255,255,255,0.1);
+padding:15px;
+border-radius:15px;
+margin-top:12px;
+transition:0.3s;
+}
+
+.card:hover{transform:scale(1.02)}
+
+.search{
+display:flex;
+gap:10px;
+}
+
+input{
+flex:1;
+padding:12px;
+border-radius:25px;
+border:none;
+outline:none;
+}
+
+button{
+padding:10px 15px;
+border-radius:20px;
+border:none;
+cursor:pointer;
+background:#4facfe;
+color:white;
+transition:0.3s;
+}
+
+button:hover{transform:scale(1.05)}
+
+h1{margin-bottom:10px}
+.small{font-size:12px;opacity:0.8}
 </style>
 </head>
 
 <body>
-<div class="container">
-<h1>💻 AI Programming Ultra</h1>
 
-<div class="search-box">
-<input id="search" placeholder="Search...">
+<div class="container">
+
+<h1>🤖 Pro Max AI Search</h1>
+
+<div class="card search">
+<input id="q" placeholder="Search anything...">
 <button onclick="search()">🔍</button>
 <button onclick="voice()">🎤</button>
 </div>
 
-<div id="results"></div>
+<div id="result"></div>
 
 <div class="card">
-<h3>🤖 AI Chat</h3>
-<input id="chatInput" placeholder="Ask AI...">
-<button onclick="chatAI()">Send</button>
-<div id="chat"></div>
+<h3>💬 AI Chat</h3>
+<input id="chat" placeholder="Ask AI...">
+<button onclick="askAI()">Send</button>
+<div id="chatBox"></div>
+</div>
+
+<div class="card">
+<h3>⚖ Compare</h3>
+<input id="a" placeholder="Language 1">
+<input id="b" placeholder="Language 2">
+<button onclick="compare()">Compare</button>
+<div id="cmp"></div>
 </div>
 
 <div class="card">
@@ -41,124 +91,107 @@ button {background:#4285f4;color:white;border:none;padding:10px;border-radius:50
 <div id="fav"></div>
 </div>
 
-<div class="card">
-<h3>📊 Compare</h3>
-<input id="c1" placeholder="Lang 1">
-<input id="c2" placeholder="Lang 2">
-<button onclick="compare()">Compare</button>
-<div id="compare"></div>
-</div>
-
-<div class="card">
-<h3>🧠 Quiz</h3>
-<div id="quiz"></div>
-</div>
-
-<div class="card">
-<h3>🔐 Login (demo)</h3>
-<input id="user" placeholder="username">
-<button onclick="login()">Login</button>
-<div id="userStatus"></div>
-</div>
-
 </div>
 
 <script>
-const API = "https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
-async function search() {
- const q = document.getElementById("search").value;
- if(!q) return;
+const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
+const OPENAI_API_KEY="PUT_YOUR_KEY_HERE";
 
- const res = await fetch(API + encodeURIComponent(q));
- const data = await res.json();
+async function search(){
+let q=document.getElementById("q").value;
+if(!q) return;
 
- document.getElementById("results").innerHTML = `
- <div class='card'>
- <h2>${data.title}</h2>
- <p>${data.extract || 'Pas de description disponible en français.'}</p>
- <button onclick="saveFav('${data.title}')">⭐ Save</button>
- </div>`;
+let res=await fetch(WIKI+q);
+let data=await res.json();
 
- aiExplain(data.title);
- quiz(data.title);
+document.getElementById("result").innerHTML=`
+<div class="card">
+<h2>${data.title}</h2>
+<p>${data.extract || "No Wikipedia data"}</p>
+<button onclick="save('${data.title}')">⭐ Save</button>
+</div>`;
+
+generateAI(q);
+quiz(q);
 }
 
-function aiExplain(topic){
- document.getElementById("results").innerHTML += `
- <div class='card'>🤖 ${topic} est largement utilisé dans le développement moderne.</div>`;
+function generateAI(topic){
+document.getElementById("result").innerHTML+=`
+<div class="card">🤖 AI Insight: ${topic} is widely used in modern development and technology ecosystems.</div>`;
+}
+
+async function askAI(){
+let msg=document.getElementById("chat").value;
+if(!msg) return;
+
+document.getElementById("chatBox").innerHTML+=`<p>🧑 ${msg}</p>`;
+
+try{
+let res=await fetch("https://api.openai.com/v1/chat/completions",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+OPENAI_API_KEY
+},
+body:JSON.stringify({
+model:"gpt-4o-mini",
+messages:[{role:"user",content:msg}]
+})
+});
+
+let data=await res.json();
+let reply=data.choices[0].message.content;
+
+document.getElementById("chatBox").innerHTML+=`<p>🤖 ${reply}</p>`;
+}catch(e){
+document.getElementById("chatBox").innerHTML+="<p>❌ Error AI</p>";
+}
+}
+
+function compare(){
+let a=document.getElementById("a").value;
+let b=document.getElementById("b").value;
+
+if(!a||!b) return;
+
+document.getElementById("cmp").innerHTML=`
+<p>${a} vs ${b}</p>
+<p>👉 ${a} is often used for backend/frontend, while ${b} has different ecosystem strengths.</p>`;
+}
+
+function save(x){
+let f=JSON.parse(localStorage.getItem("fav")||"[]");
+f.push(x);
+localStorage.setItem("fav",JSON.stringify(f));
+load();
+}
+
+function load(){
+let f=JSON.parse(localStorage.getItem("fav")||"[]");
+document.getElementById("fav").innerHTML=f.map(i=>`<div>⭐ ${i}</div>`).join("");
+}
+load();
+
+function quiz(t){
+document.getElementById("result").innerHTML+=`
+<div class="card">
+❓ ${t} is mainly used for?
+<br><button onclick="alert('Correct answer depends on context 😄')">Answer</button>
+</div>`;
 }
 
 function voice(){
- const rec = new webkitSpeechRecognition();
- rec.onresult = e => {
- document.getElementById("search").value = e.results[0][0].transcript;
- search();
- };
- rec.start();
+let rec=new webkitSpeechRecognition();
+rec.lang="en-US";
+rec.onresult=e=>{
+document.getElementById("q").value=e.results[0][0].transcript;
+search();
+};
+rec.start();
 }
 
-async function chatAI(){
- const input = document.getElementById("chatInput").value;
- const chatDiv = document.getElementById("chat");
-
- if(!input) return;
-
- chatDiv.innerHTML += `<p>🧑 ${input}</p>`;
-
- try {
-   const res = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(input) + "&langpair=en|fr");
-   const data = await res.json();
-   const reply = data.responseData.translatedText;
-
-   chatDiv.innerHTML += `<p>🤖 AI (FR): ${reply}</p>`;
- } catch (e) {
-   chatDiv.innerHTML += `<p>❌ Erreur</p>`;
- }
-}
-
-function saveFav(item){
- let fav = JSON.parse(localStorage.getItem("fav") || "[]");
- fav.push(item);
- localStorage.setItem("fav", JSON.stringify(fav));
- loadFav();
-}
-
-function loadFav(){
- let fav = JSON.parse(localStorage.getItem("fav") || "[]");
- document.getElementById("fav").innerHTML = fav.map(f => `<div>${f}</div>`).join("");
-}
-loadFav();
-
-function compare(){
- const a = document.getElementById("c1").value;
- const b = document.getElementById("c2").value;
-
- if(!a || !b) return;
-
- document.getElementById("compare").innerHTML = `
- ${a} vs ${b} : ces deux langages sont puissants mais diffèrent selon leurs usages.`;
-}
-
-function quiz(topic){
- document.getElementById("quiz").innerHTML = `
- <div>${topic} est utilisé pour ?</div>
- <button onclick="alert('Programmation')">Réponse</button>`;
-}
-
-function login(){
- const user = document.getElementById("user").value;
- if(!user) return;
-
- localStorage.setItem("user", user);
- document.getElementById("userStatus").innerText = "Logged in as " + user;
-}
 </script>
-
-<!--
-🌍 DEPLOY:
-Vercel / Netlify
--->
 
 </body>
 </html>
