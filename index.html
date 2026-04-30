@@ -2,123 +2,140 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Anime Search</title>
+<title>Programming Search AI Ultra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: url("https://wallpapercave.com/wp/wp5128415.jpg") no-repeat center center/cover;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.box {
-  background: rgba(0,0,0,0.75);
-  padding: 25px;
-  border-radius: 15px;
-  width: 340px;
-  text-align: center;
-  color: white;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  margin-top: 10px;
-  outline: none;
-}
-
-.results {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.card {
-  background: rgba(255,255,255,0.1);
-  border-radius: 10px;
-  overflow: hidden;
-  font-size: 13px;
-}
-
-.card img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-}
-
-button {
-  background: #ff3d3d;
-  color: white;
-  border: none;
-  padding: 6px;
-  margin: 5px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-button:hover {
-  background: #ff1a1a;
-}
+body {margin:0;font-family:Arial;background:#0f2027;color:white}
+.container {max-width:700px;margin:auto;padding:20px}
+.search-box {display:flex;background:white;border-radius:30px;padding:5px}
+input {flex:1;border:none;outline:none;padding:12px;border-radius:30px}
+button {background:#4285f4;color:white;border:none;padding:10px;border-radius:50%;cursor:pointer}
+.card {background:rgba(255,255,255,0.1);padding:15px;border-radius:10px;margin-top:10px}
+.row {display:flex;gap:10px;flex-wrap:wrap}
+.small {font-size:12px;opacity:0.8}
 </style>
 </head>
 
 <body>
+<div class="container">
+<h1>💻 AI Programming Ultra</h1>
 
-<div class="box">
-  <h2>🎌 Anime App</h2>
-  <input type="text" placeholder="اكتب اسم أنمي واضغط Enter">
-  <div id="results" class="results"></div>
+<div class="search-box">
+<input id="search" placeholder="Search...">
+<button onclick="search()">🔍</button>
+<button onclick="voice()">🎤</button>
+</div>
+
+<div id="results"></div>
+
+<div class="card">
+<h3>🤖 AI Chat</h3>
+<input id="chatInput" placeholder="Ask AI...">
+<button onclick="chatAI()">Send</button>
+<div id="chat"></div>
+</div>
+
+<div class="card">
+<h3>⭐ Favorites</h3>
+<div id="fav"></div>
+</div>
+
+<div class="card">
+<h3>📊 Compare</h3>
+<input id="c1" placeholder="Lang 1">
+<input id="c2" placeholder="Lang 2">
+<button onclick="compare()">Compare</button>
+<div id="compare"></div>
+</div>
+
+<div class="card">
+<h3>🧠 Quiz</h3>
+<div id="quiz"></div>
+</div>
+
+<div class="card">
+<h3>🔐 Login (demo)</h3>
+<input id="user" placeholder="username">
+<button onclick="login()">Login</button>
+<div id="userStatus"></div>
+</div>
+
 </div>
 
 <script>
-const input = document.querySelector("input");
-const results = document.getElementById("results");
+const API = "https://en.wikipedia.org/api/rest_v1/page/summary/";
 
-input.addEventListener("keydown", async (e) => {
-  if (e.key === "Enter") {
-    const query = input.value.trim();
-    if (!query) return;
+async function search() {
+ const q = document.getElementById("search").value;
+ const res = await fetch(API+q);
+ const data = await res.json();
 
-    results.innerHTML = "⏳ جاري البحث...";
+ document.getElementById("results").innerHTML = `
+ <div class='card'>
+ <h2>${data.title}</h2>
+ <p>${data.extract}</p>
+ <button onclick="saveFav('${data.title}')">⭐ Save</button>
+ </div>`;
 
-    try {
-      const res = await fetch(`https://api.jikan.moe/v4/anime?q=${query}`);
-      const data = await res.json();
+ aiExplain(data.title);
+ quiz(data.title);
+}
 
-      results.innerHTML = "";
+function aiExplain(topic){
+ document.getElementById("results").innerHTML += `
+ <div class='card'>🤖 ${topic} is widely used in modern development.</div>`;
+}
 
-      data.data.slice(0, 6).forEach(anime => {
-        const trailer = anime.trailer?.url;
+function voice(){
+ const rec = new webkitSpeechRecognition();
+ rec.onresult = e => {
+ document.getElementById("search").value = e.results[0][0].transcript;
+ search();
+ };
+ rec.start();
+}
 
-        const card = document.createElement("div");
-        card.className = "card";
+function chatAI(){
+ const input = document.getElementById("chatInput").value;
+ document.getElementById("chat").innerHTML += `<p>🧑 ${input}</p>`;
+ document.getElementById("chat").innerHTML += `<p>🤖 AI: This is a smart answer about ${input}</p>`;
+}
 
-        card.innerHTML = `
-          <img src="${anime.images.jpg.image_url}">
-          <p>${anime.title}</p>
-          ${
-            trailer
-              ? `<button onclick="window.open('${trailer}', '_blank')">▶️ Trailer</button>`
-              : `<p style="font-size:11px">لا يوجد Trailer</p>`
-          }
-        `;
+function saveFav(item){
+ let fav = JSON.parse(localStorage.getItem("fav")||"[]");
+ fav.push(item);
+ localStorage.setItem("fav", JSON.stringify(fav));
+ loadFav();
+}
 
-        results.appendChild(card);
-      });
-    } catch (err) {
-      results.innerHTML = "❌ euror";
-    }
-  }
-});
+function loadFav(){
+ let fav = JSON.parse(localStorage.getItem("fav")||"[]");
+ document.getElementById("fav").innerHTML = fav.map(f=>`<div>${f}</div>`).join("");
+}
+loadFav();
+
+function compare(){
+ const a = document.getElementById("c1").value;
+ const b = document.getElementById("c2").value;
+ document.getElementById("compare").innerHTML = `
+ ${a} vs ${b}: both are powerful but differ in usage.`;
+}
+
+function quiz(topic){
+ document.getElementById("quiz").innerHTML = `
+ <div>${topic} is used for?</div>
+ <button onclick="alert('Programming')">Answer</button>`;
+}
+
+function login(){
+ const user = document.getElementById("user").value;
+ localStorage.setItem("user", user);
+ document.getElementById("userStatus").innerText = "Logged in as "+user;
+}
 </script>
 
-</body>
-</html>
+<!--
+🌍 DEPLOY:
+Vercel / Netlify
+-->
