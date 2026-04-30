@@ -96,9 +96,25 @@ function voice(){
  rec.start();
 }
 
-function chatAI(){
+async function chatAI(){
  const input = document.getElementById("chatInput").value;
- document.getElementById("chat").innerHTML += `<p>🧑 ${input}</p>`;
+ const chatDiv = document.getElementById("chat");
+
+ chatDiv.innerHTML += `<p>🧑 ${input}</p>`;
+
+ try {
+   // استخدام API مجاني للترجمة/الرد (فرنسي)
+   const res = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(input) + "&langpair=en|fr");
+   const data = await res.json();
+
+   const reply = data.responseData.translatedText;
+
+   chatDiv.innerHTML += `<p>🤖 AI (FR): ${reply}</p>`;
+
+ } catch (e) {
+   chatDiv.innerHTML += `<p>❌ Erreur</p>`;
+ }
+}</p>`;
  document.getElementById("chat").innerHTML += `<p>🤖 AI: This is a smart answer about ${input}</p>`;
 }
 
