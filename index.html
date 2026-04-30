@@ -64,7 +64,7 @@ button {background:#4285f4;color:white;border:none;padding:10px;border-radius:50
 </div>
 
 <script>
-const API = "https://en.wikipedia.org/api/rest_v1/page/summary/";
+const API = "https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
 async function search() {
  const q = document.getElementById("search").value;
@@ -74,7 +74,7 @@ async function search() {
  document.getElementById("results").innerHTML = `
  <div class='card'>
  <h2>${data.title}</h2>
- <p>${data.extract}</p>
+ <p>${data.extract || 'Pas de description disponible en français.'}</p>
  <button onclick="saveFav('${data.title}')">⭐ Save</button>
  </div>`;
 
@@ -84,7 +84,8 @@ async function search() {
 
 function aiExplain(topic){
  document.getElementById("results").innerHTML += `
- <div class='card'>🤖 ${topic} is widely used in modern development.</div>`;
+ <div class='card'>🤖 ${topic} est largement utilisé dans le développement moderne.</div>`;
+} is widely used in modern development.</div>`;
 }
 
 function voice(){
@@ -135,12 +136,14 @@ function compare(){
  const a = document.getElementById("c1").value;
  const b = document.getElementById("c2").value;
  document.getElementById("compare").innerHTML = `
- ${a} vs ${b}: both are powerful but differ in usage.`;
+ ${a} vs ${b} : ces deux langages sont puissants mais diffèrent selon leurs usages.`;;
 }
 
 function quiz(topic){
  document.getElementById("quiz").innerHTML = `
- <div>${topic} is used for?</div>
+ <div>${topic} est utilisé pour ?</div>
+ <button onclick="alert('Programmation')">Réponse</button>`;
+} is used for?</div>
  <button onclick="alert('Programming')">Answer</button>`;
 }
 
