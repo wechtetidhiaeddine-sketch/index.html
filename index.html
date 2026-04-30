@@ -27,15 +27,11 @@ transition:0.3s;
 
 .card:hover{transform:scale(1.02)}
 
-.search{
-display:flex;
-gap:10px;
-}
-
 input{
-flex:1;
-padding:12px;
-border-radius:25px;
+width:100%;
+padding:10px;
+margin:5px 0;
+border-radius:20px;
 border:none;
 outline:none;
 }
@@ -47,13 +43,12 @@ border:none;
 cursor:pointer;
 background:#4facfe;
 color:white;
-transition:0.3s;
+margin:5px;
 }
 
 button:hover{transform:scale(1.05)}
 
 h1{margin-bottom:10px}
-.small{font-size:12px;opacity:0.8}
 </style>
 </head>
 
@@ -63,10 +58,10 @@ h1{margin-bottom:10px}
 
 <h1>🤖 Pro Max AI Search</h1>
 
-<div class="card search">
+<div class="card">
 <input id="q" placeholder="Search anything...">
-<button onclick="search()">🔍</button>
-<button onclick="voice()">🎤</button>
+<button onclick="search()">🔍 Search</button>
+<button onclick="voice()">🎤 Voice</button>
 </div>
 
 <div id="result"></div>
@@ -91,6 +86,13 @@ h1{margin-bottom:10px}
 <div id="fav"></div>
 </div>
 
+<div class="card">
+<h3>🏆 Quiz Panel</h3>
+<button onclick="resetQuiz()">🔄 Restart Quiz</button>
+<button onclick="showLeaderboard()">🏆 Leaderboard</button>
+<button onclick="generateAIQuiz('JavaScript')">🧠 AI Question</button>
+</div>
+
 </div>
 
 <script>
@@ -98,6 +100,7 @@ h1{margin-bottom:10px}
 const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
 const OPENAI_API_KEY="PUT_YOUR_KEY_HERE";
 
+/* ---------- SEARCH ---------- */
 async function search(){
 let q=document.getElementById("q").value;
 if(!q) return;
@@ -109,18 +112,12 @@ document.getElementById("result").innerHTML=`
 <div class="card">
 <h2>${data.title}</h2>
 <p>${data.extract || "No Wikipedia data"}</p>
-<button onclick="save('${data.title}')">⭐ Save</button>
 </div>`;
 
-generateAI(q);
-quiz(q);
+showQuiz();
 }
 
-function generateAI(topic){
-document.getElementById("result").innerHTML+=`
-<div class="card">🤖 AI Insight: ${topic} is widely used in modern development and technology ecosystems.</div>`;
-}
-
+/* ---------- AI CHAT ---------- */
 async function askAI(){
 let msg=document.getElementById("chat").value;
 if(!msg) return;
@@ -145,20 +142,26 @@ let reply=data.choices[0].message.content;
 
 document.getElementById("chatBox").innerHTML+=`<p>🤖 ${reply}</p>`;
 }catch(e){
-document.getElementById("chatBox").innerHTML+="<p>❌ Error AI</p>";
+document.getElementById("chatBox").innerHTML+="<p>❌ AI Error</p>";
 }
 }
 
+/* ---------- COMPARE ---------- */
 function compare(){
 let a=document.getElementById("a").value;
 let b=document.getElementById("b").value;
 
-if(!a||!b) return;
-
-document.getElementById("cmp").innerHTML=`
-<p>${a} vs ${b}</p>
-<p>👉 ${a} is often used for backend/frontend, while ${b} has different ecosystem strengths.</p>`;
+document.getElementById("cmp").innerHTML=
+`<p>${a} vs ${b}</p>
+<p>👉 ${a} is strong in some areas, while ${b} has different strengths.</p>`;
 }
+
+/* ---------- FAVORITES ---------- */
+function load(){
+let f=JSON.parse(localStorage.getItem("fav")||"[]");
+document.getElementById("fav").innerHTML=f.map(i=>`⭐ ${i}`).join("<br>");
+}
+load();
 
 function save(x){
 let f=JSON.parse(localStorage.getItem("fav")||"[]");
@@ -167,27 +170,130 @@ localStorage.setItem("fav",JSON.stringify(f));
 load();
 }
 
-function load(){
-let f=JSON.parse(localStorage.getItem("fav")||"[]");
-document.getElementById("fav").innerHTML=f.map(i=>`<div>⭐ ${i}</div>`).join("");
-}
-load();
+/* ---------- QUIZ PRO MAX ---------- */
 
-function quiz(t){
+const quizBank=[
+{q:"What is JavaScript used for?",options:["Design","Web interactivity","Database","AI only"],a:1},
+{q:"React is a ...",options:["Library","Database","OS","Language"],a:0},
+{q:"HTML stands for?",options:["Hyper Text Markup Language","Hot Mail","High Text Machine Language","None"],a:0}
+];
+
+let currentQ=0;
+let score=0;
+let timeLeft=10;
+let timer;
+
+/* SHOW QUIZ */
+function showQuiz(){
+clearInterval(timer);
+timeLeft=10;
+
+let q=quizBank[currentQ];
+if(!q) return endQuiz();
+
 document.getElementById("result").innerHTML+=`
 <div class="card">
-❓ ${t} is mainly used for?
-<br><button onclick="alert('Correct answer depends on context 😄')">Answer</button>
+<h3>❓ Quiz</h3>
+<p>${q.q}</p>
+
+<p>⏱️ Time: <span id="time">${timeLeft}</span>s</p>
+
+${q.options.map((o,i)=>
+`<button onclick="answer(${i})">${o}</button><br>`
+).join("")}
+
+<p>⭐ Score: ${score}</p>
+</div>`;
+
+timer=setInterval(()=>{
+timeLeft--;
+document.getElementById("time").innerText=timeLeft;
+
+if(timeLeft<=0){
+clearInterval(timer);
+currentQ++;
+showQuiz();
+}
+},1000);
+}
+
+/* ANSWER */
+function answer(i){
+let q=quizBank[currentQ];
+
+if(i===q.a) score++;
+
+currentQ++;
+showQuiz();
+}
+
+/* END */
+function endQuiz(){
+document.getElementById("result").innerHTML+=`
+<div class="card">
+🏁 Finished! Score: ${score}/${quizBank.length}
+</div>`;
+
+saveScore();
+}
+
+/* RESET */
+function resetQuiz(){
+currentQ=0;
+score=0;
+showQuiz();
+}
+
+/* LEADERBOARD */
+function saveScore(){
+let s=JSON.parse(localStorage.getItem("scores")||"[]");
+s.push(score);
+localStorage.setItem("scores",JSON.stringify(s));
+}
+
+function showLeaderboard(){
+let s=JSON.parse(localStorage.getItem("scores")||"[]");
+
+document.getElementById("result").innerHTML+=`
+<div class="card">
+<h3>🏆 Leaderboard</h3>
+${s.sort((a,b)=>b-a).map(x=>`⭐ ${x}`).join("<br>")}
 </div>`;
 }
 
+/* AI QUIZ */
+async function generateAIQuiz(topic){
+let res=await fetch("https://api.openai.com/v1/chat/completions",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+OPENAI_API_KEY
+},
+body:JSON.stringify({
+model:"gpt-4o-mini",
+messages:[{role:"user",content:`Create a multiple choice question about ${topic}`}]
+})
+});
+
+let data=await res.json();
+
+document.getElementById("result").innerHTML+=`
+<div class="card">
+🤖 AI Quiz:
+<p>${data.choices[0].message.content}</p>
+</div>`;
+}
+
+/* VOICE */
 function voice(){
 let rec=new webkitSpeechRecognition();
 rec.lang="en-US";
+
 rec.onresult=e=>{
 document.getElementById("q").value=e.results[0][0].transcript;
 search();
 };
+
 rec.start();
 }
 
