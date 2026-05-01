@@ -11,6 +11,7 @@ margin:0;
 font-family:Arial;
 background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
+transition:0.5s;
 }
 
 .container{max-width:900px;margin:auto;padding:20px}
@@ -67,6 +68,20 @@ width:0%;
 <p id="welcome"></p>
 </div>
 
+<!-- BACKGROUND -->
+<div class="card">
+<h3>🖼️ Background</h3>
+
+<input id="bgInput" placeholder="Lien image...">
+<button onclick="setBg()">Apply URL</button>
+
+<br><br>
+
+<input type="file" id="uploadBg" accept="image/*">
+<button onclick="uploadBg()">Upload Image</button>
+
+</div>
+
 <!-- SEARCH -->
 <div class="card">
 <input id="q" placeholder="Recherche...">
@@ -115,6 +130,46 @@ localStorage.setItem("user",u);
 welcome.innerText="Bienvenue "+u;
 }
 
+/* BACKGROUND URL */
+function setBg(){
+let url = document.getElementById("bgInput").value;
+
+document.body.style.background = `url(${url}) no-repeat center center/cover`;
+
+localStorage.setItem("bg", url);
+}
+
+/* BACKGROUND UPLOAD */
+function uploadBg(){
+let file = document.getElementById("uploadBg").files[0];
+
+if(!file) return;
+
+let reader = new FileReader();
+
+reader.onload = function(e){
+let img = e.target.result;
+
+document.body.style.background = `url(${img}) no-repeat center center/cover`;
+
+// نحفظ الصورة (base64)
+localStorage.setItem("bg", img);
+};
+
+reader.readAsDataURL(file);
+}
+
+/* LOAD BACKGROUND */
+window.onload = function(){
+let bg = localStorage.getItem("bg");
+
+if(bg){
+document.body.style.background = `url(${bg}) no-repeat center center/cover`;
+}
+
+loadFav();
+}
+
 /* SEARCH */
 const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
@@ -155,7 +210,6 @@ function loadFav(){
 let f=JSON.parse(localStorage.getItem("fav")||"[]");
 fav.innerHTML=f.map(x=>`⭐ ${x}`).join("<br>");
 }
-loadFav();
 
 function save(x){
 let f=JSON.parse(localStorage.getItem("fav")||"[]");
