@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>coding Search</title>
+<title>🚀 Ultra Max AI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -13,42 +13,44 @@ background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
 }
 
-.container{max-width:800px;margin:auto;padding:20px}
+.container{max-width:900px;margin:auto;padding:20px}
 
 .card{
 background:rgba(255,255,255,0.08);
-backdrop-filter:blur(12px);
-border:1px solid rgba(255,255,255,0.1);
-padding:15px;
+padding:20px;
+margin-top:15px;
 border-radius:15px;
-margin-top:12px;
-transition:0.3s;
 }
-
-.card:hover{transform:scale(1.02)}
 
 input{
 width:100%;
 padding:10px;
-margin:5px 0;
 border-radius:20px;
 border:none;
-outline:none;
+margin:5px 0;
 }
 
 button{
 padding:10px 15px;
 border-radius:20px;
 border:none;
-cursor:pointer;
 background:#4facfe;
 color:white;
-margin:5px;
+cursor:pointer;
 }
 
-button:hover{transform:scale(1.05)}
+.progress{
+height:8px;
+background:#ffffff33;
+border-radius:10px;
+margin:10px 0;
+}
 
-h1{margin-bottom:10px}
+.bar{
+height:100%;
+background:#00ffcc;
+width:0%;
+}
 </style>
 </head>
 
@@ -56,245 +58,180 @@ h1{margin-bottom:10px}
 
 <div class="container">
 
-<h1>🤖 coding Search</h1>
+<h1>🤖 Ultra Max AI</h1>
 
+<!-- LOGIN -->
 <div class="card">
-<input id="q" placeholder="Search anything...">
-<button onclick="search()">🔍 Search</button>
-<button onclick="voice()">🎤 Voice</button>
+<input id="user" placeholder="Username">
+<button onclick="login()">Login</button>
+<p id="welcome"></p>
 </div>
 
-<div id="result"></div>
-
+<!-- SEARCH -->
 <div class="card">
-<h3>💬 AI Chat</h3>
-<input id="chat" placeholder="Ask AI...">
-<button onclick="askAI()">Send</button>
+<input id="q" placeholder="Recherche...">
+<button onclick="search()">Search</button>
+<button onclick="voice()">🎤</button>
+<div id="result"></div>
+</div>
+
+<!-- AI -->
+<div class="card">
+<input id="msg" placeholder="Ask AI...">
+<button onclick="chat()">Send</button>
 <div id="chatBox"></div>
 </div>
 
+<!-- COMPARE -->
 <div class="card">
-<h3>⚖ Compare</h3>
-<input id="a" placeholder="Language 1">
-<input id="b" placeholder="Language 2">
+<input id="a" placeholder="Langage 1">
+<input id="b" placeholder="Langage 2">
 <button onclick="compare()">Compare</button>
 <div id="cmp"></div>
 </div>
 
+<!-- FAVORITES -->
 <div class="card">
-<h3>⭐ Favorites</h3>
+<h3>⭐ Favoris</h3>
 <div id="fav"></div>
 </div>
 
+<!-- QUIZ -->
 <div class="card">
-<h3>🏆 Quiz Panel</h3>
-<button onclick="resetQuiz()">🔄 Restart Quiz</button>
-<button onclick="showLeaderboard()">🏆 Leaderboard</button>
-<button onclick="generateAIQuiz('JavaScript')">🧠 AI Question</button>
+<h3>🧠 Quiz</h3>
+<button onclick="startQuiz()">Start</button>
+<button onclick="aiQuiz()">AI Quiz</button>
+<div id="quiz"></div>
 </div>
 
 </div>
 
 <script>
 
-const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
-const OPENAI_API_KEY="PUT_YOUR_KEY_HERE";
+/* LOGIN */
+function login(){
+let u=user.value;
+localStorage.setItem("user",u);
+welcome.innerText="Bienvenue "+u;
+}
 
-/* ---------- SEARCH ---------- */
+/* SEARCH */
+const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
+
 async function search(){
 let q=document.getElementById("q").value;
-if(!q) return;
+let r=await fetch(WIKI+q);
+let d=await r.json();
 
-let res=await fetch(WIKI+q);
-let data=await res.json();
-
-document.getElementById("result").innerHTML=`
-<div class="card">
-<h2>${data.title}</h2>
-<p>${data.extract || "No Wikipedia data"}</p>
-</div>`;
-
-showQuiz();
+result.innerHTML=`
+<h2>${d.title}</h2>
+<p>${d.extract}</p>
+<button onclick="save('${d.title}')">⭐</button>`;
 }
 
-/* ---------- AI CHAT ---------- */
-async function askAI(){
-let msg=document.getElementById("chat").value;
-if(!msg) return;
+/* AI CHAT */
+async function chat(){
+let msg=document.getElementById("msg").value;
 
-document.getElementById("chatBox").innerHTML+=`<p>🧑 ${msg}</p>`;
+chatBox.innerHTML+=`<p>🧑 ${msg}</p>`;
 
-try{
-let res=await fetch("https://api.openai.com/v1/chat/completions",{
+let r=await fetch("http://localhost:3000/chat",{
 method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+OPENAI_API_KEY
-},
-body:JSON.stringify({
-model:"gpt-4o-mini",
-messages:[{role:"user",content:msg}]
-})
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({msg})
 });
 
-let data=await res.json();
-let reply=data.choices[0].message.content;
-
-document.getElementById("chatBox").innerHTML+=`<p>🤖 ${reply}</p>`;
-}catch(e){
-document.getElementById("chatBox").innerHTML+="<p>❌ AI Error</p>";
-}
+let d=await r.json();
+chatBox.innerHTML+=`<p>🤖 ${d.reply}</p>`;
 }
 
-/* ---------- COMPARE ---------- */
+/* COMPARE */
 function compare(){
-let a=document.getElementById("a").value;
-let b=document.getElementById("b").value;
-
-document.getElementById("cmp").innerHTML=
-`<p>${a} vs ${b}</p>
-<p>👉 ${a} is strong in some areas, while ${b} has different strengths.</p>`;
+cmp.innerHTML=`👉 ${a.value} est différent de ${b.value}`;
 }
 
-/* ---------- FAVORITES ---------- */
-function load(){
+/* FAVORITES */
+function loadFav(){
 let f=JSON.parse(localStorage.getItem("fav")||"[]");
-document.getElementById("fav").innerHTML=f.map(i=>`⭐ ${i}`).join("<br>");
+fav.innerHTML=f.map(x=>`⭐ ${x}`).join("<br>");
 }
-load();
+loadFav();
 
 function save(x){
 let f=JSON.parse(localStorage.getItem("fav")||"[]");
 f.push(x);
 localStorage.setItem("fav",JSON.stringify(f));
-load();
+loadFav();
 }
 
-/* ---------- QUIZ PRO MAX ---------- */
-
-const quizBank=[
-{q:"What is JavaScript used for?",options:["Design","Web interactivity","Database","AI only"],a:1},
-{q:"React is a ...",options:["Library","Database","OS","Language"],a:0},
-{q:"HTML stands for?",options:["Hyper Text Markup Language","Hot Mail","High Text Machine Language","None"],a:0}
+/* QUIZ */
+let quizData=[
+{q:"JS sert à ?",o:["Design","Interaction web","DB"],a:1},
+{q:"HTML ?",o:["Langage","Email","OS"],a:0}
 ];
 
-let currentQ=0;
-let score=0;
-let timeLeft=10;
-let timer;
+let i=0,score=0,time=10,t;
 
-/* SHOW QUIZ */
-function showQuiz(){
-clearInterval(timer);
-timeLeft=10;
+function startQuiz(){
+i=0;score=0;
+next();
+}
 
-let q=quizBank[currentQ];
-if(!q) return endQuiz();
+function next(){
+clearInterval(t);
 
-document.getElementById("result").innerHTML+=`
-<div class="card">
-<h3>❓ Quiz</h3>
+if(i>=quizData.length){
+quiz.innerHTML=`Score: ${score}`;
+return;
+}
+
+let q=quizData[i];
+
+quiz.innerHTML=`
 <p>${q.q}</p>
+<div class="progress"><div class="bar" id="bar"></div></div>
+${q.o.map((x,idx)=>`<button onclick="ans(${idx})">${x}</button>`).join("<br>")}
+`;
 
-<p>⏱️ Time: <span id="time">${timeLeft}</span>s</p>
+time=10;
 
-${q.options.map((o,i)=>
-`<button onclick="answer(${i})">${o}</button><br>`
-).join("")}
+t=setInterval(()=>{
+time--;
+bar.style.width=(time*10)+"%";
 
-<p>⭐ Score: ${score}</p>
-</div>`;
-
-timer=setInterval(()=>{
-timeLeft--;
-document.getElementById("time").innerText=timeLeft;
-
-if(timeLeft<=0){
-clearInterval(timer);
-currentQ++;
-showQuiz();
+if(time<=0){
+i++;next();
 }
 },1000);
 }
 
-/* ANSWER */
-function answer(i){
-let q=quizBank[currentQ];
-
-if(i===q.a) score++;
-
-currentQ++;
-showQuiz();
-}
-
-/* END */
-function endQuiz(){
-document.getElementById("result").innerHTML+=`
-<div class="card">
-🏁 Finished! Score: ${score}/${quizBank.length}
-</div>`;
-
-saveScore();
-}
-
-/* RESET */
-function resetQuiz(){
-currentQ=0;
-score=0;
-showQuiz();
-}
-
-/* LEADERBOARD */
-function saveScore(){
-let s=JSON.parse(localStorage.getItem("scores")||"[]");
-s.push(score);
-localStorage.setItem("scores",JSON.stringify(s));
-}
-
-function showLeaderboard(){
-let s=JSON.parse(localStorage.getItem("scores")||"[]");
-
-document.getElementById("result").innerHTML+=`
-<div class="card">
-<h3>🏆 Leaderboard</h3>
-${s.sort((a,b)=>b-a).map(x=>`⭐ ${x}`).join("<br>")}
-</div>`;
+function ans(x){
+if(x===quizData[i].a) score++;
+i++;
+next();
 }
 
 /* AI QUIZ */
-async function generateAIQuiz(topic){
-let res=await fetch("https://api.openai.com/v1/chat/completions",{
+async function aiQuiz(){
+let r=await fetch("http://localhost:3000/quiz",{
 method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+OPENAI_API_KEY
-},
-body:JSON.stringify({
-model:"gpt-4o-mini",
-messages:[{role:"user",content:`Create a multiple choice question about ${topic}`}]
-})
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({topic:"programmation"})
 });
 
-let data=await res.json();
-
-document.getElementById("result").innerHTML+=`
-<div class="card">
-🤖 AI Quiz:
-<p>${data.choices[0].message.content}</p>
-</div>`;
+let d=await r.json();
+quiz.innerHTML=`<p>${d.q}</p>`;
 }
 
 /* VOICE */
 function voice(){
-let rec=new webkitSpeechRecognition();
-rec.lang="en-US";
-
-rec.onresult=e=>{
-document.getElementById("q").value=e.results[0][0].transcript;
+let r=new webkitSpeechRecognition();
+r.lang="fr-FR";
+r.onresult=e=>{
+q.value=e.results[0][0].transcript;
 search();
 };
-
-rec.start();
+r.start();
 }
 
 </script>
