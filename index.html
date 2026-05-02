@@ -1,301 +1,288 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>🚀 Coding d&t PRO MAX</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>🚀 Coding d&t </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-color:white;
-transition:0.4s;
-}
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
 
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-.card{
-background:rgba(255,255,255,0.08);
-padding:20px;
-margin-top:15px;
-border-radius:15px;
-animation:fadeIn 0.4s ease;
-}
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 40px 20px;
+        }
 
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
-}
+        /* Glassmorphism Effect */
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
 
-input{
-width:100%;
-padding:10px;
-border-radius:20px;
-border:none;
-margin:5px 0;
-outline:none;
-}
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
 
-button{
-padding:10px;
-border-radius:20px;
-border:none;
-background:#4facfe;
-color:white;
-cursor:pointer;
-margin-top:5px;
-transition:0.2s;
-}
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
+        }
 
-button:hover{
-background:#00c6ff;
-transform:scale(1.03);
-}
+        input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            margin-bottom: 10px;
+            outline: none;
+        }
 
-img.result-img{
-width:100%;
-max-height:300px;
-object-fit:cover;
-border-radius:15px;
-margin-top:10px;
-}
+        button {
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-/* QUIZ */
-.progress{
-height:8px;
-background:#ffffff33;
-border-radius:10px;
-margin:10px 0;
-overflow:hidden;
-}
+        button:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 15px var(--secondary);
+        }
 
-.bar{
-height:100%;
-background:#00ffcc;
-width:0%;
-transition:0.2s;
-}
+        .result-img {
+            width: 100%;
+            border-radius: 15px;
+            margin-top: 15px;
+            border: 2px solid var(--primary);
+        }
 
-/* YOUTUBE BUTTON */
-#ytBtn{
-position:fixed;
-bottom:20px;
-right:20px;
-background:red;
-padding:12px 18px;
-border-radius:50px;
-display:none;
-font-weight:bold;
-cursor:pointer;
-z-index:999;
-}
+        .progress { height: 10px; background: #334155; border-radius: 20px; margin: 20px 0; overflow: hidden; }
+        .bar { height: 100%; background: linear-gradient(to right, #00ffcc, #00f2fe); width: 0%; transition: 0.3s; }
 
-/* BACKGROUND SECTION */
-</style>
+        #ytBtn {
+            position: fixed; bottom: 30px; right: 30px;
+            background: #ff0000; color: white; padding: 15px 25px;
+            border-radius: 50px; cursor: pointer; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4); display: none; z-index: 1000;
+        }
+
+        .badge {
+            background: var(--primary); color: #0f172a; padding: 2px 8px;
+            border-radius: 5px; font-size: 0.8rem; margin-right: 5px;
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
+    <h1>🚀 Coding d&t <span style="color:white"></span></h1>
 
-<h1>🚀 Coding d&t PRO MAX</h1>
+    <div class="card">
+        <h3>🔎 Wiki-AI Search</h3>
+        <input id="q" placeholder="Entrez un concept (ex: JavaScript, React, NASA)...">
+        <button onclick="search()">Analyser le concept</button>
+        <div id="result"></div>
+    </div>
 
-<!-- SEARCH -->
-<div class="card">
-<h3>🔎 Search</h3>
-<input id="q" placeholder="Recherche n'importe quoi...">
-<button onclick="search()">Search</button>
-<div id="result"></div>
+    <div class="card">
+        <h3>⚔️ Matrix Comparison</h3>
+        <div style="display: flex; gap: 10px;">
+            <input id="a" placeholder="Langage A">
+            <input id="b" placeholder="Langage B">
+        </div>
+        <button onclick="compare()">Lancer le duel</button>
+        <div id="cmp"></div>
+    </div>
+
+    <div class="card" id="quiz-card">
+        <h3>🧠 Master Quiz <span id="highScore" style="float:right; font-size: 0.9rem; color: #aaa;"></span></h3>
+        <button onclick="startQuiz()">Lancer le défi</button>
+        <div id="quiz"></div>
+    </div>
+
+    <div class="card">
+        <h3>⚙️ Customization</h3>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <input id="bgUrl" placeholder="Image URL">
+            <button onclick="setBgUrl()">Appliquer URL</button>
+            <input type="file" id="bgFile">
+            <button onclick="uploadBg()">Upload Local</button>
+        </div>
+    </div>
 </div>
 
-<!-- COMPARE -->
-<div class="card">
-<h3>⚔️ Compare Langages</h3>
-<input id="a" placeholder="Langage 1">
-<input id="b" placeholder="Langage 2">
-<button onclick="compare()">Compare</button>
-<div id="cmp"></div>
-</div>
-
-<!-- QUIZ -->
-<div class="card">
-<h3>🧠 Quiz Pro Max</h3>
-<button onclick="startQuiz()">Start Quiz</button>
-<div id="quiz"></div>
-</div>
-
-<!-- BACKGROUND -->
-<div class="card">
-<h3>🖼️ Background Control</h3>
-
-<input id="bgUrl" placeholder="Image URL">
-<button onclick="setBgUrl()">Apply URL</button>
-
-<input type="file" id="bgFile" accept="image/*">
-<button onclick="uploadBg()">Upload Image</button>
-</div>
-
-</div>
-
-<!-- YOUTUBE BUTTON -->
-<div id="ytBtn" onclick="openYT()">▶ YouTube</div>
+<div id="ytBtn" onclick="openYT()">▶ Regarder sur YouTube</div>
 
 <script>
+let lastQuery = "";
+let highScore = localStorage.getItem('codingQuizScore') || 0;
+document.getElementById('highScore').innerText = `Record: ${highScore}`;
 
-let lastQuery="";
+// نطق النتائج (Speech Synthesis)
+function speak(text) {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = 'fr-FR';
+    window.speechSynthesis.speak(speech);
+}
 
 /* SEARCH */
-async function search(){
-
-let query=document.getElementById("q").value;
-if(!query) return;
-
-lastQuery=query;
-
-const url="https://fr.wikipedia.org/api/rest_v1/page/summary/";
-
-try{
-let r=await fetch(url+encodeURIComponent(query));
-let d=await r.json();
-
-let img="";
-if(d.thumbnail && d.thumbnail.source){
-img=`<img class="result-img" src="${d.thumbnail.source}">`;
+async function search() {
+    let query = document.getElementById("q").value;
+    if(!query) return;
+    
+    document.getElementById("result").innerHTML = "<p>Analyse en cours...</p>";
+    
+    try {
+        let r = await fetch(`https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        let d = await r.json();
+        
+        lastQuery = query;
+        let img = d.thumbnail ? `<img class="result-img" src="${d.thumbnail.source}">` : "";
+        
+        document.getElementById("result").innerHTML = `
+            <h2 style="color:var(--primary)">${d.title}</h2>
+            <p style="line-height:1.8; font-size: 1.1rem;">${d.extract}</p>
+            ${img}
+        `;
+        document.getElementById("ytBtn").style.display = "block";
+        speak(`Voici les informations sur ${d.title}`);
+    } catch(e) {
+        document.getElementById("result").innerHTML = "❌ Erreur : Concept introuvable.";
+    }
 }
 
-document.getElementById("result").innerHTML=`
-<h2>${d.title || query}</h2>
-<p style="line-height:1.6">${d.extract || "Aucune description trouvée."}</p>
-${img}
-`;
+/* SMART COMPARE */
+function compare() {
+    let l1 = document.getElementById("a").value.toLowerCase().trim();
+    let l2 = document.getElementById("b").value.toLowerCase().trim();
 
-document.getElementById("ytBtn").style.display="block";
+    const data = {
+        javascript: { desc: "Roi du Web, asynchrone, flexible.", speed: "Rapide (V8)", use: "Web Fullstack" },
+        python: { desc: "Clair, puissant, idéal pour l'IA.", speed: "Moyen", use: "Data Science / AI" },
+        java: { desc: "Robuste, portable (JVM), orienté objet.", speed: "Très Rapide", use: "Entreprise / Android" },
+        html: { desc: "Squelette du web (Balisage).", speed: "N/A", use: "Structure Web" }
+    };
 
-}catch(e){
-document.getElementById("result").innerHTML="❌ Erreur de recherche";
+    const getInfo = (lang) => data[lang] || { desc: "Langage non répertorié.", speed: "Inconnu", use: "Inconnu" };
+    
+    let info1 = getInfo(l1);
+    let info2 = getInfo(l2);
+
+    document.getElementById("cmp").innerHTML = `
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+            <div class="card" style="background: rgba(0,242,254,0.05)">
+                <h4>${l1.toUpperCase()}</h4>
+                <p>${info1.desc}</p>
+                <small><span class="badge">Vitesse:</span> ${info1.speed}</small>
+            </div>
+            <div class="card" style="background: rgba(79,172,254,0.05)">
+                <h4>${l2.toUpperCase()}</h4>
+                <p>${info2.desc}</p>
+                <small><span class="badge">Usage:</span> ${info2.use}</small>
+            </div>
+        </div>
+    `;
 }
 
-}
-
-/* YOUTUBE */
-function openYT(){
-let q=lastQuery || "programmation";
-window.open(
-`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
-"_blank"
-);
-}
-
-/* COMPARE */
-function compare(){
-
-let lang1=document.getElementById("a").value.toLowerCase();
-let lang2=document.getElementById("b").value.toLowerCase();
-
-const data={
-javascript:"JavaScript est un langage de programmation utilisé pour rendre les sites web interactifs, dynamiques et modernes côté navigateur et serveur.",
-python:"Python est un langage simple et puissant utilisé en intelligence artificielle, data science, automatisation et développement web.",
-java:"Java est un langage orienté objet utilisé pour les applications Android et les systèmes d’entreprise.",
-cpp:"C++ est un langage performant utilisé pour les jeux vidéo et les systèmes rapides.",
-php:"PHP est utilisé pour le développement web côté serveur."
-};
-
-document.getElementById("cmp").innerHTML=`
-<h3>⚔️ Résultat comparaison</h3>
-
-<p><b>${lang1}</b></p>
-<p>${data[lang1] || "Description non disponible"}</p>
-
-<hr>
-
-<p><b>${lang2}</b></p>
-<p>${data[lang2] || "Description non disponible"}</p>
-`;
-}
-
-/* QUIZ */
-let quizData=[
-{q:"HTML ?",o:["Structure","AI","OS"],a:0},
-{q:"CSS ?",o:["Style","DB","CPU"],a:0},
-{q:"JavaScript ?",o:["Interactivité","Hardware","Music"],a:0},
-{q:"Python ?",o:["IA & Data","Game","Image"],a:0},
-{q:"SQL ?",o:["Database","Design","Video"],a:0},
-{q:"API ?",o:["Interface","System","OS"],a:0},
-{q:"HTTP ?",o:["Web protocol","Language","App"],a:0},
-{q:"DOM ?",o:["HTML structure","Server","Cloud"],a:0}
+/* QUIZ PRO */
+let quizData = [
+    {q:"Quel langage pour l'IA ?", o:["Python","PHP","HTML"], a:0},
+    {q:"Signification de DOM ?", o:["Document Object Model","Data On Memory","Digital OS Master"], a:0},
+    {q:"Symbole de l'ID en CSS ?", o:[".","#","&"], a:1}
 ];
+let i=0, score=0, t, timerVal=10;
 
-let i=0,score=0,t,time=10;
-
-function startQuiz(){
-i=0;
-score=0;
-showQuiz();
+function startQuiz() {
+    i=0; score=0; 
+    showQuiz();
 }
 
-function showQuiz(){
+function showQuiz() {
+    clearInterval(t);
+    if(i >= quizData.length) {
+        if(score > highScore) {
+            highScore = score;
+            localStorage.setItem('codingQuizScore', highScore);
+        }
+        document.getElementById("quiz").innerHTML = `<h3>🏆 Score: ${score}/${quizData.length}</h3><button onclick="startQuiz()">Rejouer</button>`;
+        return;
+    }
 
-clearInterval(t);
-
-if(i>=quizData.length){
-document.getElementById("quiz").innerHTML=
-`🏆 Score final: ${score}/${quizData.length}`;
-return;
+    let qd = quizData[i];
+    document.getElementById("quiz").innerHTML = `
+        <p style="font-weight:bold; font-size:1.2rem;">${qd.q}</p>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+        <div style="display:grid; gap:10px;">
+            ${qd.o.map((x,idx) => `<button onclick="ans(${idx})">${x}</button>`).join("")}
+        </div>
+    `;
+    
+    timerVal = 10;
+    t = setInterval(() => {
+        timerVal--;
+        document.getElementById("bar").style.width = (timerVal * 10) + "%";
+        if(timerVal <= 0) { i++; showQuiz(); }
+    }, 1000);
 }
 
-let qd=quizData[i];
-
-document.getElementById("quiz").innerHTML=`
-<p>${qd.q}</p>
-<div class="progress"><div class="bar" id="bar"></div></div>
-${qd.o.map((x,idx)=>`<button onclick="ans(${idx})">${x}</button>`).join("")}
-`;
-
-time=10;
-
-t=setInterval(()=>{
-time--;
-let bar=document.getElementById("bar");
-if(bar) bar.style.width=(time*10)+"%";
-
-if(time<=0){
-i++;
-showQuiz();
-}
-},1000);
+function ans(idx) {
+    if(idx === quizData[i].a) score++;
+    i++;
+    showQuiz();
 }
 
-function ans(x){
-if(x===quizData[i].a) score++;
-i++;
-showQuiz();
+/* BACKGROUNDS */
+function setBgUrl() {
+    let url = document.getElementById("bgUrl").value;
+    document.body.style.background = `url('${url}') center/cover fixed`;
 }
 
-/* BACKGROUND URL */
-function setBgUrl(){
-let url=document.getElementById("bgUrl").value;
-if(!url) return;
-document.body.style.background=`url(${url}) center/cover fixed`;
+function uploadBg() {
+    let file = document.getElementById("bgFile").files[0];
+    let reader = new FileReader();
+    reader.onload = (e) => document.body.style.background = `url('${e.target.result}') center/cover fixed`;
+    reader.readAsDataURL(file);
 }
 
-/* BACKGROUND UPLOAD */
-function uploadBg(){
-let file=document.getElementById("bgFile").files[0];
-if(!file) return;
-
-let reader=new FileReader();
-reader.onload=function(e){
-document.body.style.background=`url(${e.target.result}) center/cover fixed`;
-};
-reader.readAsDataURL(file);
+function openYT() {
+    window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(lastQuery)}`, "_blank");
 }
-
 </script>
 
 </body>
