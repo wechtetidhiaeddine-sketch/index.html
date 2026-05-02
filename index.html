@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🚀 Coding d&t</title>
+<title>🚀 Coding d&t PRO MAX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -11,9 +11,14 @@ margin:0;
 font-family:Arial;
 background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
+transition:0.4s;
 }
 
-.container{max-width:900px;margin:auto;padding:20px}
+.container{
+max-width:900px;
+margin:auto;
+padding:20px;
+}
 
 .card{
 background:rgba(255,255,255,0.08);
@@ -34,6 +39,7 @@ padding:10px;
 border-radius:20px;
 border:none;
 margin:5px 0;
+outline:none;
 }
 
 button{
@@ -44,9 +50,10 @@ background:#4facfe;
 color:white;
 cursor:pointer;
 margin-top:5px;
+transition:0.2s;
 }
 
-button:hover{background:#00c6ff}
+button:hover{background:#00c6ff;transform:scale(1.03);}
 
 img.result-img{
 width:100%;
@@ -56,12 +63,13 @@ border-radius:15px;
 margin-top:10px;
 }
 
-/* FIX QUIZ */
+/* QUIZ */
 .progress{
 height:8px;
 background:#ffffff33;
 border-radius:10px;
 margin:10px 0;
+overflow:hidden;
 }
 
 .bar{
@@ -70,6 +78,22 @@ background:#00ffcc;
 width:0%;
 transition:0.2s;
 }
+
+/* YOUTUBE BUTTON */
+#ytBtn{
+position:fixed;
+bottom:20px;
+right:20px;
+background:red;
+padding:12px 18px;
+border-radius:50px;
+display:none;
+font-weight:bold;
+cursor:pointer;
+z-index:999;
+}
+
+/* BACKGROUND SECTION */
 </style>
 </head>
 
@@ -77,11 +101,12 @@ transition:0.2s;
 
 <div class="container">
 
-<h1>🚀 Coding d&t</h1>
+<h1>🚀 Coding d&t PRO MAX</h1>
 
 <!-- SEARCH -->
 <div class="card">
-<input id="q" placeholder="Recherche...">
+<h3>🔎 Search</h3>
+<input id="q" placeholder="Recherche n'importe quoi...">
 <button onclick="search()">Search</button>
 <div id="result"></div>
 </div>
@@ -97,12 +122,26 @@ transition:0.2s;
 
 <!-- QUIZ -->
 <div class="card">
-<h3>🧠 Quiz</h3>
+<h3>🧠 Quiz Pro Max</h3>
 <button onclick="startQuiz()">Start Quiz</button>
 <div id="quiz"></div>
 </div>
 
+<!-- BACKGROUND -->
+<div class="card">
+<h3>🖼️ Background Control</h3>
+
+<input id="bgUrl" placeholder="Image URL">
+<button onclick="setBgUrl()">Apply URL</button>
+
+<input type="file" id="bgFile" accept="image/*">
+<button onclick="uploadBg()">Upload Image</button>
 </div>
+
+</div>
+
+<!-- YOUTUBE BUTTON -->
+<div id="ytBtn" onclick="openYT()">▶ YouTube</div>
 
 <script>
 
@@ -129,44 +168,56 @@ img=`<img class="result-img" src="${d.thumbnail.source}">`;
 
 document.getElementById("result").innerHTML=`
 <h2>${d.title || query}</h2>
-<p>${d.extract || "Aucune info"}</p>
+<p style="line-height:1.6">${d.extract || "Aucune description trouvée."}</p>
 ${img}
 `;
 
+/* show youtube button */
+document.getElementById("ytBtn").style.display="block";
+
 }catch(e){
-document.getElementById("result").innerHTML="❌ erreur";
+document.getElementById("result").innerHTML="❌ Erreur de recherche";
 }
 
 }
 
-/* 🔥 COMPARE FIXED + LONG DESCRIPTION */
+/* YOUTUBE */
+function openYT(){
+let q=lastQuery || "programmation";
+window.open(
+`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
+"_blank"
+);
+}
+
+/* COMPARE */
 function compare(){
 
 let lang1=document.getElementById("a").value.toLowerCase();
 let lang2=document.getElementById("b").value.toLowerCase();
 
 const data={
-javascript:"JavaScript est un langage de programmation utilisé principalement pour rendre les sites web interactifs, dynamiques et modernes. Il fonctionne côté client et côté serveur avec Node.js.",
-python:"Python est un langage très simple et puissant utilisé en intelligence artificielle, data science, développement web et automatisation. Il est connu pour sa syntaxe facile.",
-java:"Java est un langage orienté objet utilisé pour les applications mobiles (Android), les systèmes d’entreprise et les logiciels robustes.",
-cpp:"C++ est un langage performant utilisé pour les jeux vidéo, les moteurs graphiques et les systèmes nécessitant une grande vitesse.",
-php:"PHP est un langage serveur utilisé principalement pour le développement web dynamique et les sites backend."
+javascript:"JavaScript est un langage web dynamique utilisé pour créer des sites interactifs, animations et applications modernes côté navigateur et serveur.",
+python:"Python est un langage simple et puissant utilisé en intelligence artificielle, data science, automatisation et développement web.",
+java:"Java est un langage robuste utilisé pour les applications Android et les systèmes d’entreprise.",
+cpp:"C++ est un langage très rapide utilisé pour les jeux vidéo et les systèmes performants.",
+php:"PHP est un langage backend utilisé pour les sites web dynamiques."
 };
 
 document.getElementById("cmp").innerHTML=`
 <h3>⚔️ Résultat comparaison</h3>
 
-<p><b>${lang1}</b> :</p>
+<p><b>${lang1}</b></p>
 <p>${data[lang1] || "Description non disponible"}</p>
 
 <hr>
 
-<p><b>${lang2}</b> :</p>
+<p><b>${lang2}</b></p>
 <p>${data[lang2] || "Description non disponible"}</p>
 `;
 }
 
-/* QUIZ FIXED */
+/* QUIZ */
 let quizData=[
 {q:"HTML ?",o:["Structure","AI","OS"],a:0},
 {q:"CSS ?",o:["Style","DB","CPU"],a:0},
@@ -218,6 +269,25 @@ function ans(x){
 if(x===quizData[i].a) score++;
 i++;
 showQuiz();
+}
+
+/* BACKGROUND URL */
+function setBgUrl(){
+let url=document.getElementById("bgUrl").value;
+if(!url) return;
+document.body.style.background=`url(${url}) center/cover`;
+}
+
+/* BACKGROUND UPLOAD */
+function uploadBg(){
+let file=document.getElementById("bgFile").files[0];
+if(!file) return;
+
+let reader=new FileReader();
+reader.onload=function(e){
+document.body.style.background=`url(${e.target.result}) center/cover`;
+};
+reader.readAsDataURL(file);
 }
 
 </script>
