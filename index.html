@@ -15,18 +15,16 @@ color:white;
 
 .container{max-width:900px;margin:auto;padding:20px}
 
-/* ANIMATION */
 .card{
 background:rgba(255,255,255,0.08);
 padding:20px;
 margin-top:15px;
 border-radius:15px;
-opacity:0;
-transform:translateY(30px);
 animation:fadeIn 0.8s forwards;
 }
 
 @keyframes fadeIn{
+from{opacity:0;transform:translateY(30px);}
 to{opacity:1;transform:translateY(0);}
 }
 
@@ -48,23 +46,7 @@ cursor:pointer;
 transition:0.3s;
 }
 
-button:hover{
-transform:scale(1.1);
-background:#00c6ff;
-}
-
-.progress{
-height:8px;
-background:#ffffff33;
-border-radius:10px;
-margin:10px 0;
-}
-
-.bar{
-height:100%;
-background:#00ffcc;
-width:0%;
-}
+button:hover{transform:scale(1.05);background:#00c6ff;}
 
 .video-grid{
 display:grid;
@@ -79,12 +61,6 @@ height:200px;
 border-radius:10px;
 border:none;
 }
-
-#leaderboard{
-background:#00000033;
-padding:10px;
-border-radius:10px;
-}
 </style>
 </head>
 
@@ -94,200 +70,102 @@ border-radius:10px;
 
 <h1>🚀 Coding d&t PRO MAX</h1>
 
-<!-- LOGIN -->
 <div class="card">
 <input id="user" placeholder="Username">
 <button onclick="login()">Login</button>
 <p id="welcome"></p>
 </div>
 
-<!-- BACKGROUND -->
 <div class="card">
 <h3>🖼️ Background</h3>
+
 <input id="bgInput" placeholder="Image URL">
-<button onclick="setBg()">Apply</button>
+<button onclick="setBg()">Apply URL</button>
+
+<input type="file" id="fileBg" accept="image/*">
+<button onclick="uploadBg()">Upload Image</button>
 </div>
 
-<!-- SEARCH -->
 <div class="card">
 <input id="q" placeholder="Recherche langage...">
 <button onclick="search()">Search</button>
 <div id="result"></div>
 </div>
 
-<!-- COMPARE -->
-<div class="card">
-<input id="a" placeholder="Langage 1">
-<input id="b" placeholder="Langage 2">
-<button onclick="compare()">Compare</button>
-<div id="cmp"></div>
-</div>
-
-<!-- QUIZ -->
-<div class="card">
-<h3>🧠 Quiz</h3>
-<button onclick="startQuiz()">Start</button>
-<div id="quiz"></div>
-
-<h3>🏆 Leaderboard</h3>
-<div id="leaderboard"></div>
-</div>
-
 </div>
 
 <script>
 
-/* API KEY */
-const YT_API=AIzaSyCN4R7OmMHyv1-cyQHPFcN7EMetNPv04KM;
+const YT_API = "PUT_YOUR_API_KEY_HERE";
 
-/* LOGIN */
+const resultEl = document.getElementById("result");
+
 function login(){
-let u=user.value;
+let u = document.getElementById("user").value;
 localStorage.setItem("user",u);
-welcome.innerText="Bienvenue "+u;
+document.getElementById("welcome").innerText = "Bienvenue " + u;
 }
 
-/* BACKGROUND */
 function setBg(){
-let url=bgInput.value;
-document.body.style.background=`url(${url}) center/cover`;
+let url = document.getElementById("bgInput").value;
+document.body.style.background = `url(${url}) center/cover`;
 }
 
-/* SEARCH (Wiki + YouTube dynamique) */
-const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
+function uploadBg(){
+let file = document.getElementById("fileBg").files[0];
+if(!file) return;
+
+let reader = new FileReader();
+reader.onload = e=>{
+document.body.style.background = `url(${e.target.result}) center/cover`;
+};
+reader.readAsDataURL(file);
+}
 
 async function search(){
 
-let query=q.value;
+let query = document.getElementById("q").value;
+if(!query) return;
 
-// Wikipedia
-let r=await fetch(WIKI+query);
-let d=await r.json();
+try{
 
-// YouTube API (3 videos)
-let yt=await fetch(
-`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}+programmation&type=video&maxResults=4&key=${YT_API}`
+const WIKI = "https://fr.wikipedia.org/api/rest_v1/page/summary/";
+let r = await fetch(WIKI + encodeURIComponent(query));
+let d = await r.json();
+
+let videosHTML = "";
+
+try{
+let yt = await fetch(
+`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " programmation")}&type=video&maxResults=4&key=${YT_API}`
 );
 
-let data=await yt.json();
-
-let videosHTML="";
+let data = await yt.json();
 
 if(data.items){
 videosHTML = `<div class="video-grid">` +
-data.items.map(v=>
+data.items.map(v =>
 `<iframe src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>`
 ).join("") +
 `</div>`;
-}else{
-videosHTML="<p>❌ Pas de vidéo</p>";
 }
 
-result.innerHTML=`
-<h2>${d.title || "Langage"}</h2>
-<p>${d.extract || "Aucune description"}</p>
+}catch(e){
+videosHTML = "<p>YouTube indisponible</p>";
+}
 
+resultEl.innerHTML = `
+<h2>${d.title || query}</h2>
+<p>${d.extract || "Aucune description"}</p>
 <h3>🎥 Vidéos</h3>
 ${videosHTML}
 `;
+
+}catch(err){
+resultEl.innerHTML = "<p>❌ Erreur de recherche</p>";
 }
 
-/* COMPARE */
-function compare(){
-let lang1=a.value.toLowerCase();
-let lang2=b.value.toLowerCase();
-
-let data={
-"javascript":"Langage web dynamique",
-"python":"Langage IA et data",
-"java":"Applications mobiles",
-"c++":"Performance élevée",
-"php":"Serveur web"
-};
-
-cmp.innerHTML=`
-<h3>⚔️ Comparaison</h3>
-<p><b>${lang1}</b>: ${data[lang1]||"?"}</p>
-<p><b>${lang2}</b>: ${data[lang2]||"?"}</p>
-
-<ul>
-<li>⚡ Performance</li>
-<li>🧠 Facilité</li>
-<li>💼 Utilisation</li>
-</ul>
-`;
 }
-
-/* QUIZ */
-let quizData=[
-{q:"JS ?",o:["Web","Food","OS"],a:0},
-{q:"HTML ?",o:["Structure","DB","AI"],a:0},
-{q:"CSS ?",o:["Style","Server","Cloud"],a:0},
-{q:"Python ?",o:["Simple","Hard","Game"],a:0},
-{q:"SQL ?",o:["DB","Image","Music"],a:0}
-];
-
-let i=0,score=0,time=10,t;
-
-function startQuiz(){
-i=0;score=0;
-next();
-}
-
-function next(){
-clearInterval(t);
-
-if(i>=quizData.length){
-quiz.innerHTML=`Score: ${score}/${quizData.length}`;
-saveScore(score);
-showLeaderboard();
-return;
-}
-
-let qd=quizData[i];
-
-quiz.innerHTML=`
-<p>${qd.q}</p>
-<div class="progress"><div class="bar" id="bar"></div></div>
-${qd.o.map((x,idx)=>`<button onclick="ans(${idx})">${x}</button>`).join("<br>")}
-`;
-
-time=10;
-
-t=setInterval(()=>{
-time--;
-bar.style.width=(time*10)+"%";
-if(time<=0){i++;next();}
-},1000);
-}
-
-function ans(x){
-if(x===quizData[i].a) score++;
-i++;
-next();
-}
-
-/* LEADERBOARD */
-function saveScore(s){
-let name=localStorage.getItem("user")||"Guest";
-let board=JSON.parse(localStorage.getItem("board")||"[]");
-
-board.push({name,score:s});
-board.sort((a,b)=>b.score-a.score);
-
-localStorage.setItem("board",JSON.stringify(board));
-}
-
-function showLeaderboard(){
-let board=JSON.parse(localStorage.getItem("board")||"[]");
-
-leaderboard.innerHTML=board
-.slice(0,5)
-.map(x=>`🏅 ${x.name} : ${x.score}`)
-.join("<br>");
-}
-
-window.onload=showLeaderboard;
 
 </script>
 
