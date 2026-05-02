@@ -53,7 +53,10 @@ margin-top:5px;
 transition:0.2s;
 }
 
-button:hover{background:#00c6ff;transform:scale(1.03);}
+button:hover{
+background:#00c6ff;
+transform:scale(1.03);
+}
 
 img.result-img{
 width:100%;
@@ -172,7 +175,6 @@ document.getElementById("result").innerHTML=`
 ${img}
 `;
 
-/* show youtube button */
 document.getElementById("ytBtn").style.display="block";
 
 }catch(e){
@@ -197,11 +199,11 @@ let lang1=document.getElementById("a").value.toLowerCase();
 let lang2=document.getElementById("b").value.toLowerCase();
 
 const data={
-javascript:"JavaScript est un langage web dynamique utilisé pour créer des sites interactifs, animations et applications modernes côté navigateur et serveur.",
+javascript:"JavaScript est un langage de programmation utilisé pour rendre les sites web interactifs, dynamiques et modernes côté navigateur et serveur.",
 python:"Python est un langage simple et puissant utilisé en intelligence artificielle, data science, automatisation et développement web.",
-java:"Java est un langage robuste utilisé pour les applications Android et les systèmes d’entreprise.",
-cpp:"C++ est un langage très rapide utilisé pour les jeux vidéo et les systèmes performants.",
-php:"PHP est un langage backend utilisé pour les sites web dynamiques."
+java:"Java est un langage orienté objet utilisé pour les applications Android et les systèmes d’entreprise.",
+cpp:"C++ est un langage performant utilisé pour les jeux vidéo et les systèmes rapides.",
+php:"PHP est utilisé pour le développement web côté serveur."
 };
 
 document.getElementById("cmp").innerHTML=`
@@ -222,7 +224,7 @@ let quizData=[
 {q:"HTML ?",o:["Structure","AI","OS"],a:0},
 {q:"CSS ?",o:["Style","DB","CPU"],a:0},
 {q:"JavaScript ?",o:["Interactivité","Hardware","Music"],a:0},
-{q:"Python ?",o:["IA & Data","Game only","Image"],a:0},
+{q:"Python ?",o:["IA & Data","Game","Image"],a:0},
 {q:"SQL ?",o:["Database","Design","Video"],a:0},
 {q:"API ?",o:["Interface","System","OS"],a:0},
 {q:"HTTP ?",o:["Web protocol","Language","App"],a:0},
@@ -232,7 +234,8 @@ let quizData=[
 let i=0,score=0,t,time=10;
 
 function startQuiz(){
-i=0;score=0;
+i=0;
+score=0;
 showQuiz();
 }
 
@@ -261,7 +264,10 @@ time--;
 let bar=document.getElementById("bar");
 if(bar) bar.style.width=(time*10)+"%";
 
-if(time<=0){i++;showQuiz();}
+if(time<=0){
+i++;
+showQuiz();
+}
 },1000);
 }
 
@@ -275,7 +281,7 @@ showQuiz();
 function setBgUrl(){
 let url=document.getElementById("bgUrl").value;
 if(!url) return;
-document.body.style.background=`url(${url}) center/cover`;
+document.body.style.background=`url(${url}) center/cover fixed`;
 }
 
 /* BACKGROUND UPLOAD */
@@ -285,7 +291,7 @@ if(!file) return;
 
 let reader=new FileReader();
 reader.onload=function(e){
-document.body.style.background=`url(${e.target.result}) center/cover`;
+document.body.style.background=`url(${e.target.result}) center/cover fixed`;
 };
 reader.readAsDataURL(file);
 }
