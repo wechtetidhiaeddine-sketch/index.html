@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🚀 AI coding d&t</title>
+<title>🚀 Coding d&t</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -11,16 +11,23 @@ margin:0;
 font-family:Arial;
 background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 color:white;
-transition:0.5s;
 }
 
 .container{max-width:900px;margin:auto;padding:20px}
 
+/* ANIMATION */
 .card{
 background:rgba(255,255,255,0.08);
 padding:20px;
 margin-top:15px;
 border-radius:15px;
+opacity:0;
+transform:translateY(30px);
+animation:fadeIn 0.8s forwards;
+}
+
+@keyframes fadeIn{
+to{opacity:1;transform:translateY(0);}
 }
 
 input{
@@ -32,12 +39,18 @@ margin:5px 0;
 }
 
 button{
-padding:10px 15px;
+padding:10px;
 border-radius:20px;
 border:none;
 background:#4facfe;
 color:white;
 cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.1);
+background:#00c6ff;
 }
 
 .progress{
@@ -51,6 +64,12 @@ margin:10px 0;
 height:100%;
 background:#00ffcc;
 width:0%;
+}
+
+#leaderboard{
+background:#00000033;
+padding:10px;
+border-radius:10px;
 }
 </style>
 </head>
@@ -71,22 +90,14 @@ width:0%;
 <!-- BACKGROUND -->
 <div class="card">
 <h3>🖼️ Background</h3>
-
-<input id="bgInput" placeholder="Lien image...">
-<button onclick="setBg()">Apply URL</button>
-
-<br><br>
-
-<input type="file" id="uploadBg" accept="image/*">
-<button onclick="uploadBg()">Upload Image</button>
-
+<input id="bgInput" placeholder="Image URL">
+<button onclick="setBg()">Apply</button>
 </div>
 
 <!-- SEARCH -->
 <div class="card">
-<input id="q" placeholder="Recherche...">
+<input id="q" placeholder="Recherche langage...">
 <button onclick="search()">Search</button>
-<button onclick="voice()">🎤</button>
 <div id="result"></div>
 </div>
 
@@ -98,17 +109,14 @@ width:0%;
 <div id="cmp"></div>
 </div>
 
-<!-- FAVORITES -->
-<div class="card">
-<h3>⭐ Favoris</h3>
-<div id="fav"></div>
-</div>
-
 <!-- QUIZ -->
 <div class="card">
 <h3>🧠 Quiz</h3>
 <button onclick="startQuiz()">Start</button>
 <div id="quiz"></div>
+
+<h3>🏆 Leaderboard</h3>
+<div id="leaderboard"></div>
 </div>
 
 </div>
@@ -124,115 +132,77 @@ welcome.innerText="Bienvenue "+u;
 
 /* BACKGROUND */
 function setBg(){
-let url = bgInput.value;
-document.body.style.background = `url(${url}) no-repeat center/cover`;
-localStorage.setItem("bg", url);
+let url=bgInput.value;
+document.body.style.background=`url(${url}) center/cover`;
 }
 
-function uploadBg(){
-let file = uploadBg.files[0];
-if(!file) return;
-
-let reader = new FileReader();
-
-reader.onload = function(e){
-let img = e.target.result;
-document.body.style.background = `url(${img}) no-repeat center/cover`;
-localStorage.setItem("bg", img);
-};
-
-reader.readAsDataURL(file);
-}
-
-/* LOAD */
-window.onload = function(){
-let bg = localStorage.getItem("bg");
-if(bg){
-document.body.style.background = `url(${bg}) no-repeat center/cover`;
-}
-loadFav();
-}
-
-/* SEARCH + VIDEO */
+/* SEARCH + FIX VIDEO */
 const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
 async function search(){
-let qv=q.value;
+let query=q.value;
 
-let r=await fetch(WIKI+qv);
+// wiki
+let r=await fetch(WIKI+query);
 let d=await r.json();
 
-let video = `
-<iframe width="100%" height="250"
-src="https://www.youtube.com/embed?listType=search&list=${qv} programmation"
-frameborder="0" allowfullscreen>
-</iframe>
-`;
+// 🎥 FIX: فيديو ثابت حسب اللغة
+let videos={
+"html":"UB1O30fR-EE",
+"css":"yfoY53QXEnI",
+"javascript":"PkZNo7MFNFg",
+"python":"_uQrJ0TkZlc",
+"java":"grEKMHGYyns"
+};
+
+let vid = videos[query.toLowerCase()];
+
+// fallback إذا ما لقا
+let videoHTML = vid 
+? `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${vid}" allowfullscreen></iframe>`
+: `<p>⚠️ Pas de vidéo disponible</p>`;
 
 result.innerHTML=`
-<h2>${d.title || "Résultat"}</h2>
-<p>${d.extract || "Aucune info trouvée"}</p>
+<h2>${d.title || "Langage"}</h2>
+<p>${d.extract || "Aucune description trouvée"}</p>
 
 <h3>🎥 Vidéo</h3>
-${video}
-
-<button onclick="save('${d.title}')">⭐ Ajouter</button>
+${videoHTML}
 `;
 }
 
 /* COMPARE */
 function compare(){
+let lang1=a.value.toLowerCase();
+let lang2=b.value.toLowerCase();
 
-let lang1 = a.value.toLowerCase();
-let lang2 = b.value.toLowerCase();
-
-let data = {
-"javascript":"Langage web interactif",
-"python":"Langage simple utilisé en IA",
-"java":"Langage pour applications mobiles",
-"c++":"Langage performant pour systèmes",
-"php":"Langage serveur web"
+let data={
+"javascript":"Langage web dynamique",
+"python":"Langage IA et data",
+"java":"Applications mobiles",
+"c++":"Performance élevée",
+"php":"Serveur web"
 };
 
-cmp.innerHTML = `
+cmp.innerHTML=`
 <h3>⚔️ Comparaison</h3>
-
-<p><b>${lang1}</b>: ${data[lang1] || "Inconnu"}</p>
-<p><b>${lang2}</b>: ${data[lang2] || "Inconnu"}</p>
-
-<hr>
+<p><b>${lang1}</b>: ${data[lang1]||"?"}</p>
+<p><b>${lang2}</b>: ${data[lang2]||"?"}</p>
 
 <ul>
 <li>Performance ⚡</li>
 <li>Facilité 🧠</li>
 <li>Utilisation 💼</li>
 </ul>
-
-<p>💡 Choix dépend du projet</p>
 `;
-}
-
-/* FAVORITES */
-function loadFav(){
-let f=JSON.parse(localStorage.getItem("fav")||"[]");
-fav.innerHTML=f.map(x=>`⭐ ${x}`).join("<br>");
-}
-
-function save(x){
-let f=JSON.parse(localStorage.getItem("fav")||"[]");
-f.push(x);
-localStorage.setItem("fav",JSON.stringify(f));
-loadFav();
 }
 
 /* QUIZ */
 let quizData=[
-{q:"JavaScript sert à ?",o:["Design","Interaction web","DB"],a:1},
-{q:"HTML est ?",o:["Langage","Email","OS"],a:0},
-{q:"CSS sert à ?",o:["Style","Serveur","AI"],a:0},
-{q:"Python est ?",o:["Simple","Complexe","Jeu"],a:0},
-{q:"SQL sert à ?",o:["Image","DB","Design"],a:1},
-{q:"Java est ?",o:["Mobile","Food","Music"],a:0}
+{q:"JS ?",o:["Web","Food","OS"],a:0},
+{q:"HTML ?",o:["Structure","DB","AI"],a:0},
+{q:"CSS ?",o:["Style","Server","Cloud"],a:0},
+{q:"Python ?",o:["Simple","Hard","Game"],a:0}
 ];
 
 let i=0,score=0,time=10,t;
@@ -246,7 +216,9 @@ function next(){
 clearInterval(t);
 
 if(i>=quizData.length){
-quiz.innerHTML=`Score: ${score}/${quizData.length}`;
+quiz.innerHTML=`Score: ${score}`;
+saveScore(score);
+showLeaderboard();
 return;
 }
 
@@ -263,10 +235,7 @@ time=10;
 t=setInterval(()=>{
 time--;
 bar.style.width=(time*10)+"%";
-
-if(time<=0){
-i++;next();
-}
+if(time<=0){i++;next();}
 },1000);
 }
 
@@ -276,16 +245,27 @@ i++;
 next();
 }
 
-/* VOICE */
-function voice(){
-let r=new webkitSpeechRecognition();
-r.lang="fr-FR";
-r.onresult=e=>{
-q.value=e.results[0][0].transcript;
-search();
-};
-r.start();
+/* LEADERBOARD */
+function saveScore(s){
+let name=localStorage.getItem("user")||"Guest";
+let board=JSON.parse(localStorage.getItem("board")||"[]");
+
+board.push({name,score:s});
+board.sort((a,b)=>b.score-a.score);
+
+localStorage.setItem("board",JSON.stringify(board));
 }
+
+function showLeaderboard(){
+let board=JSON.parse(localStorage.getItem("board")||"[]");
+
+leaderboard.innerHTML=board
+.slice(0,5)
+.map(x=>`🏅 ${x.name} : ${x.score}`)
+.join("<br>");
+}
+
+window.onload=showLeaderboard;
 
 </script>
 
