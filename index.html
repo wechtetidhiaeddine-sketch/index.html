@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🚀 Coding d&t</title>
+<title>🚀 Coding d&t PRO MAX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -66,6 +66,20 @@ background:#00ffcc;
 width:0%;
 }
 
+.video-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:10px;
+}
+
+iframe{
+width:100%;
+height:200px;
+border-radius:10px;
+border:none;
+}
+
 #leaderboard{
 background:#00000033;
 padding:10px;
@@ -78,7 +92,7 @@ border-radius:10px;
 
 <div class="container">
 
-<h1>🚀 Coding d&t</h1>
+<h1>🚀 Coding d&t PRO MAX</h1>
 
 <!-- LOGIN -->
 <div class="card">
@@ -123,6 +137,9 @@ border-radius:10px;
 
 <script>
 
+/* API KEY */
+const YT_API=AIzaSyCN4R7OmMHyv1-cyQHPFcN7EMetNPv04KM;
+
 /* LOGIN */
 function login(){
 let u=user.value;
@@ -136,38 +153,42 @@ let url=bgInput.value;
 document.body.style.background=`url(${url}) center/cover`;
 }
 
-/* SEARCH + FIX VIDEO */
+/* SEARCH (Wiki + YouTube dynamique) */
 const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
 async function search(){
+
 let query=q.value;
 
-// wiki
+// Wikipedia
 let r=await fetch(WIKI+query);
 let d=await r.json();
 
-// 🎥 FIX: فيديو ثابت حسب اللغة
-let videos={
-"html":"UB1O30fR-EE",
-"css":"yfoY53QXEnI",
-"javascript":"PkZNo7MFNFg",
-"python":"_uQrJ0TkZlc",
-"java":"grEKMHGYyns"
-};
+// YouTube API (3 videos)
+let yt=await fetch(
+`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}+programmation&type=video&maxResults=4&key=${YT_API}`
+);
 
-let vid = videos[query.toLowerCase()];
+let data=await yt.json();
 
-// fallback إذا ما لقا
-let videoHTML = vid 
-? `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${vid}" allowfullscreen></iframe>`
-: `<p>⚠️ Pas de vidéo disponible</p>`;
+let videosHTML="";
+
+if(data.items){
+videosHTML = `<div class="video-grid">` +
+data.items.map(v=>
+`<iframe src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>`
+).join("") +
+`</div>`;
+}else{
+videosHTML="<p>❌ Pas de vidéo</p>";
+}
 
 result.innerHTML=`
 <h2>${d.title || "Langage"}</h2>
-<p>${d.extract || "Aucune description trouvée"}</p>
+<p>${d.extract || "Aucune description"}</p>
 
-<h3>🎥 Vidéo</h3>
-${videoHTML}
+<h3>🎥 Vidéos</h3>
+${videosHTML}
 `;
 }
 
@@ -190,9 +211,9 @@ cmp.innerHTML=`
 <p><b>${lang2}</b>: ${data[lang2]||"?"}</p>
 
 <ul>
-<li>Performance ⚡</li>
-<li>Facilité 🧠</li>
-<li>Utilisation 💼</li>
+<li>⚡ Performance</li>
+<li>🧠 Facilité</li>
+<li>💼 Utilisation</li>
 </ul>
 `;
 }
@@ -202,7 +223,8 @@ let quizData=[
 {q:"JS ?",o:["Web","Food","OS"],a:0},
 {q:"HTML ?",o:["Structure","DB","AI"],a:0},
 {q:"CSS ?",o:["Style","Server","Cloud"],a:0},
-{q:"Python ?",o:["Simple","Hard","Game"],a:0}
+{q:"Python ?",o:["Simple","Hard","Game"],a:0},
+{q:"SQL ?",o:["DB","Image","Music"],a:0}
 ];
 
 let i=0,score=0,time=10,t;
@@ -216,7 +238,7 @@ function next(){
 clearInterval(t);
 
 if(i>=quizData.length){
-quiz.innerHTML=`Score: ${score}`;
+quiz.innerHTML=`Score: ${score}/${quizData.length}`;
 saveScore(score);
 showLeaderboard();
 return;
