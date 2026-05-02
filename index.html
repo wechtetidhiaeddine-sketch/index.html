@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🚀 AI coding d&t</title>
+<title>🚀 Coding d&t</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -14,14 +14,25 @@ color:white;
 transition:0.5s;
 }
 
-.container{max-width:900px;margin:auto;padding:20px}
-
+/* ANIMATION */
 .card{
 background:rgba(255,255,255,0.08);
 padding:20px;
 margin-top:15px;
 border-radius:15px;
+opacity:0;
+transform:translateY(30px);
+animation:fadeIn 0.8s forwards;
 }
+
+@keyframes fadeIn{
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.container{max-width:900px;margin:auto;padding:20px}
 
 input{
 width:100%;
@@ -32,12 +43,18 @@ margin:5px 0;
 }
 
 button{
-padding:10px 15px;
+padding:10px;
 border-radius:20px;
 border:none;
 background:#4facfe;
 color:white;
 cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.1);
+background:#00c6ff;
 }
 
 .progress{
@@ -52,6 +69,14 @@ height:100%;
 background:#00ffcc;
 width:0%;
 }
+
+/* LEADERBOARD */
+#leaderboard{
+margin-top:10px;
+background:#00000033;
+padding:10px;
+border-radius:10px;
+}
 </style>
 </head>
 
@@ -59,7 +84,7 @@ width:0%;
 
 <div class="container">
 
-<h1>🤖AI coding d&t </h1>
+<h1>🚀 Coding d&t</h1>
 
 <!-- LOGIN -->
 <div class="card">
@@ -68,55 +93,21 @@ width:0%;
 <p id="welcome"></p>
 </div>
 
-<!-- BACKGROUND -->
-<div class="card">
-<h3>🖼️ Background</h3>
-
-<input id="bgInput" placeholder="Lien image...">
-<button onclick="setBg()">Apply URL</button>
-
-<br><br>
-
-<input type="file" id="uploadBg" accept="image/*">
-<button onclick="uploadBg()">Upload Image</button>
-
-</div>
-
 <!-- SEARCH -->
 <div class="card">
 <input id="q" placeholder="Recherche...">
 <button onclick="search()">Search</button>
-<button onclick="voice()">🎤</button>
 <div id="result"></div>
-</div>
-
-<!-- AI -->
-<div class="card">
-<input id="msg" placeholder="Ask AI...">
-<button onclick="chat()">Send</button>
-<div id="chatBox"></div>
-</div>
-
-<!-- COMPARE -->
-<div class="card">
-<input id="a" placeholder="Langage 1">
-<input id="b" placeholder="Langage 2">
-<button onclick="compare()">Compare</button>
-<div id="cmp"></div>
-</div>
-
-<!-- FAVORITES -->
-<div class="card">
-<h3>⭐ Favoris</h3>
-<div id="fav"></div>
 </div>
 
 <!-- QUIZ -->
 <div class="card">
 <h3>🧠 Quiz</h3>
 <button onclick="startQuiz()">Start</button>
-<button onclick="aiQuiz()">AI Quiz</button>
 <div id="quiz"></div>
+
+<h3>🏆 Leaderboard</h3>
+<div id="leaderboard"></div>
 </div>
 
 </div>
@@ -130,98 +121,26 @@ localStorage.setItem("user",u);
 welcome.innerText="Bienvenue "+u;
 }
 
-/* BACKGROUND URL */
-function setBg(){
-let url = document.getElementById("bgInput").value;
-
-document.body.style.background = `url(${url}) no-repeat center center/cover`;
-
-localStorage.setItem("bg", url);
-}
-
-/* BACKGROUND UPLOAD */
-function uploadBg(){
-let file = document.getElementById("uploadBg").files[0];
-
-if(!file) return;
-
-let reader = new FileReader();
-
-reader.onload = function(e){
-let img = e.target.result;
-
-document.body.style.background = `url(${img}) no-repeat center center/cover`;
-
-// نحفظ الصورة (base64)
-localStorage.setItem("bg", img);
-};
-
-reader.readAsDataURL(file);
-}
-
-/* LOAD BACKGROUND */
-window.onload = function(){
-let bg = localStorage.getItem("bg");
-
-if(bg){
-document.body.style.background = `url(${bg}) no-repeat center center/cover`;
-}
-
-loadFav();
-}
-
 /* SEARCH */
 const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
 async function search(){
-let q=document.getElementById("q").value;
-let r=await fetch(WIKI+q);
+let r=await fetch(WIKI+q.value);
 let d=await r.json();
 
 result.innerHTML=`
-<h2>${d.title}</h2>
-<p>${d.extract}</p>
-<button onclick="save('${d.title}')">⭐</button>`;
-}
-
-/* AI CHAT */
-async function chat(){
-let msg=document.getElementById("msg").value;
-
-chatBox.innerHTML+=`<p>🧑 ${msg}</p>`;
-
-let r=await fetch("http://localhost:3000/chat",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({msg})
-});
-
-let d=await r.json();
-chatBox.innerHTML+=`<p>🤖 ${d.reply}</p>`;
-}
-
-/* COMPARE */
-function compare(){
-cmp.innerHTML=`👉 ${a.value} est différent de ${b.value}`;
-}
-
-/* FAVORITES */
-function loadFav(){
-let f=JSON.parse(localStorage.getItem("fav")||"[]");
-fav.innerHTML=f.map(x=>`⭐ ${x}`).join("<br>");
-}
-
-function save(x){
-let f=JSON.parse(localStorage.getItem("fav")||"[]");
-f.push(x);
-localStorage.setItem("fav",JSON.stringify(f));
-loadFav();
+<h2>${d.title || ""}</h2>
+<p>${d.extract || ""}</p>
+`;
 }
 
 /* QUIZ */
 let quizData=[
-{q:"JS sert à ?",o:["Design","Interaction web","DB"],a:1},
-{q:"HTML ?",o:["Langage","Email","OS"],a:0}
+{q:"JavaScript ?",o:["Web","Food","OS"],a:0},
+{q:"HTML ?",o:["Langage","DB","AI"],a:0},
+{q:"CSS ?",o:["Style","Serveur","Cloud"],a:0},
+{q:"Python ?",o:["Simple","Complexe","Jeu"],a:0},
+{q:"SQL ?",o:["DB","Image","Music"],a:0}
 ];
 
 let i=0,score=0,time=10,t;
@@ -235,16 +154,18 @@ function next(){
 clearInterval(t);
 
 if(i>=quizData.length){
-quiz.innerHTML=`Score: ${score}`;
+quiz.innerHTML=`Score: ${score}/${quizData.length}`;
+saveScore(score);
+showLeaderboard();
 return;
 }
 
-let q=quizData[i];
+let qd=quizData[i];
 
 quiz.innerHTML=`
-<p>${q.q}</p>
+<p>${qd.q}</p>
 <div class="progress"><div class="bar" id="bar"></div></div>
-${q.o.map((x,idx)=>`<button onclick="ans(${idx})">${x}</button>`).join("<br>")}
+${qd.o.map((x,idx)=>`<button onclick="ans(${idx})">${x}</button>`).join("<br>")}
 `;
 
 time=10;
@@ -265,28 +186,30 @@ i++;
 next();
 }
 
-/* AI QUIZ */
-async function aiQuiz(){
-let r=await fetch("http://localhost:3000/quiz",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({topic:"programmation"})
-});
+/* LEADERBOARD */
+function saveScore(s){
+let name=localStorage.getItem("user") || "Guest";
 
-let d=await r.json();
-quiz.innerHTML=`<p>${d.q}</p>`;
+let board=JSON.parse(localStorage.getItem("board")||"[]");
+
+board.push({name,score:s});
+
+board.sort((a,b)=>b.score-a.score);
+
+localStorage.setItem("board",JSON.stringify(board));
 }
 
-/* VOICE */
-function voice(){
-let r=new webkitSpeechRecognition();
-r.lang="fr-FR";
-r.onresult=e=>{
-q.value=e.results[0][0].transcript;
-search();
-};
-r.start();
+function showLeaderboard(){
+let board=JSON.parse(localStorage.getItem("board")||"[]");
+
+leaderboard.innerHTML = board
+.slice(0,5)
+.map(x=>`🏅 ${x.name} : ${x.score}`)
+.join("<br>");
 }
+
+/* LOAD */
+window.onload=showLeaderboard;
 
 </script>
 
