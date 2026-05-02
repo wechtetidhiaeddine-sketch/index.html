@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🚀 Coding d&t</title>
+<title>🚀 Coding d&t PRO MAX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -20,11 +20,11 @@ background:rgba(255,255,255,0.08);
 padding:20px;
 margin-top:15px;
 border-radius:15px;
-animation:fadeIn 0.8s forwards;
+animation:fadeIn 0.5s ease;
 }
 
 @keyframes fadeIn{
-from{opacity:0;transform:translateY(30px);}
+from{opacity:0;transform:translateY(20px);}
 to{opacity:1;transform:translateY(0);}
 }
 
@@ -43,16 +43,26 @@ border:none;
 background:#4facfe;
 color:white;
 cursor:pointer;
-transition:0.3s;
 margin-top:5px;
 }
 
-button:hover{transform:scale(1.05);background:#00c6ff;}
+button:hover{background:#00c6ff}
 
-.video-btn{
+/* YouTube button hidden first */
+#ytBtn{
+position:fixed;
+bottom:20px;
+right:20px;
 background:red;
+padding:12px 18px;
+border-radius:50px;
+display:none;
+font-weight:bold;
+cursor:pointer;
+z-index:999;
 }
 
+/* Quiz */
 .progress{
 height:8px;
 background:#ffffff33;
@@ -64,12 +74,7 @@ margin:10px 0;
 height:100%;
 background:#00ffcc;
 width:0%;
-}
-
-#leaderboard{
-background:#00000033;
-padding:10px;
-border-radius:10px;
+transition:0.2s;
 }
 </style>
 </head>
@@ -78,126 +83,100 @@ border-radius:10px;
 
 <div class="container">
 
-<h1>🚀 Coding d&t</h1>
-
-<!-- LOGIN -->
-<div class="card">
-<input id="user" placeholder="Username">
-<button onclick="login()">Login</button>
-<p id="welcome"></p>
-</div>
-
-<!-- BACKGROUND -->
-<div class="card">
-<h3>🖼️ Background</h3>
-<input id="bgInput" placeholder="Image URL">
-<button onclick="setBg()">Apply URL</button>
-
-<input type="file" id="fileBg" accept="image/*">
-<button onclick="uploadBg()">Upload Image</button>
-</div>
+<h1>🚀 Coding d&t PRO MAX</h1>
 
 <!-- SEARCH -->
 <div class="card">
-<input id="q" placeholder="Recherche...">
+<input id="q" placeholder="Recherche n'importe quoi...">
 <button onclick="search()">Search</button>
-
-<button class="video-btn" onclick="openYT()">▶ YouTube</button>
-
 <div id="result"></div>
 </div>
 
 <!-- QUIZ -->
 <div class="card">
-<h3>🧠 Quiz</h3>
+<h3>🧠 Quiz Pro Max</h3>
 <button onclick="startQuiz()">Start Quiz</button>
 <div id="quiz"></div>
-
-<h3>🏆 Leaderboard</h3>
-<div id="leaderboard"></div>
 </div>
 
+</div>
+
+<!-- YOUTUBE BUTTON -->
+<div id="ytBtn" onclick="openYT()">
+▶ YouTube
 </div>
 
 <script>
 
-/* LOGIN */
-function login(){
-let u=document.getElementById("user").value;
-localStorage.setItem("user",u);
-document.getElementById("welcome").innerText="Bienvenue "+u;
-}
+let lastQuery="";
 
-/* BACKGROUND URL */
-function setBg(){
-let url=document.getElementById("bgInput").value;
-document.body.style.background=`url(${url}) center/cover`;
-}
-
-/* BACKGROUND UPLOAD */
-function uploadBg(){
-let file=document.getElementById("fileBg").files[0];
-if(!file) return;
-
-let reader=new FileReader();
-reader.onload=e=>{
-document.body.style.background=`url(${e.target.result}) center/cover`;
-};
-reader.readAsDataURL(file);
-}
-
-/* SEARCH ONLY WIKIPEDIA */
+/* SEARCH */
 async function search(){
 
 let query=document.getElementById("q").value;
 if(!query) return;
 
-const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
+lastQuery=query;
+
+/* Wikipedia long definition */
+const url="https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
 try{
-let r=await fetch(WIKI+encodeURIComponent(query));
+let r=await fetch(url+encodeURIComponent(query));
 let d=await r.json();
 
 document.getElementById("result").innerHTML=`
 <h2>${d.title || query}</h2>
-<p>${d.extract || "Aucune description trouvée"}</p>
+<p style="line-height:1.6">${d.extract || "Aucune description trouvée."}</p>
 `;
+
+/* show youtube button after search */
+document.getElementById("ytBtn").style.display="block";
+
 }catch(e){
-document.getElementById("result").innerHTML="<p>❌ Erreur</p>";
+document.getElementById("result").innerHTML="❌ Erreur de recherche";
 }
 
 }
 
-/* YOUTUBE BUTTON بدون API */
+/* YOUTUBE OPEN */
 function openYT(){
-let query=document.getElementById("q").value || "programmation";
-let url=`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-window.open(url,"_blank");
+let q = lastQuery || "education";
+window.open(
+`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,
+"_blank"
+);
 }
 
-/* QUIZ */
+/* QUIZ LONG */
 let quizData=[
-{q:"JS ?",o:["Web","Food","OS"],a:0},
-{q:"HTML ?",o:["Structure","DB","AI"],a:0},
-{q:"CSS ?",o:["Style","Server","Cloud"],a:0},
-{q:"Python ?",o:["Simple","Hard","Game"],a:0},
-{q:"SQL ?",o:["DB","Image","Music"],a:0}
+{q:"Qu'est-ce que HTML ?",o:["Langage de structure","Langage IA","Système OS"],a:0},
+{q:"CSS sert à ?",o:["Style","Base de données","Serveur"],a:0},
+{q:"JavaScript ?",o:["Interactivité web","Machine physique","Image"],a:0},
+{q:"Python utilisé pour ?",o:["IA et Data","Musique","Hardware"],a:0},
+{q:"SQL sert à ?",o:["Base de données","Design","Gaming"],a:0},
+{q:"HTTP est ?",o:["Protocole web","Langage","Système"],a:0},
+{q:"DOM en JS ?",o:["Structure HTML","Serveur","CSS"],a:0},
+{q:"API signifie ?",o:["Interface applications","Image","OS"],a:0},
+{q:"Frontend ?",o:["Interface utilisateur","Serveur","Database"],a:0},
+{q:"Backend ?",o:["Logique serveur","Design","Animation"],a:0}
 ];
 
 let i=0,score=0,t,time=10;
 
+/* QUIZ */
 function startQuiz(){
 i=0;score=0;
 next();
 }
 
 function next(){
+
 clearInterval(t);
 
 if(i>=quizData.length){
-document.getElementById("quiz").innerHTML=`Score: ${score}/${quizData.length}`;
-saveScore(score);
-showLeaderboard();
+document.getElementById("quiz").innerHTML=
+`🏆 Score final: ${score}/${quizData.length}`;
 return;
 }
 
@@ -206,14 +185,16 @@ let qd=quizData[i];
 document.getElementById("quiz").innerHTML=`
 <p>${qd.q}</p>
 <div class="progress"><div class="bar" id="bar"></div></div>
-${qd.o.map((x,idx)=>`<button onclick="ans(${idx})">${x}</button>`).join("<br>")}
+${qd.o.map((x,idx)=>`<button onclick="ans(${idx})">${x}</button>`).join("")}
 `;
 
 time=10;
 
 t=setInterval(()=>{
 time--;
-document.getElementById("bar").style.width=(time*10)+"%";
+let bar=document.getElementById("bar");
+if(bar) bar.style.width=(time*10)+"%";
+
 if(time<=0){i++;next();}
 },1000);
 }
@@ -223,28 +204,6 @@ if(x===quizData[i].a) score++;
 i++;
 next();
 }
-
-/* LEADERBOARD */
-function saveScore(s){
-let name=localStorage.getItem("user")||"Guest";
-let board=JSON.parse(localStorage.getItem("board")||"[]");
-
-board.push({name,score:s});
-board.sort((a,b)=>b.score-a.score);
-
-localStorage.setItem("board",JSON.stringify(board));
-}
-
-function showLeaderboard(){
-let board=JSON.parse(localStorage.getItem("board")||"[]");
-
-document.getElementById("leaderboard").innerHTML=
-board.slice(0,5)
-.map(x=>`🏅 ${x.name} : ${x.score}`)
-.join("<br>");
-}
-
-window.onload=showLeaderboard;
 
 </script>
 
