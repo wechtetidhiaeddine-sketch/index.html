@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🚀 Coding d&t </title>
+<title>🚀 Coding d&t PRO MAX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -44,22 +44,32 @@ background:#4facfe;
 color:white;
 cursor:pointer;
 transition:0.3s;
+margin-top:5px;
 }
 
 button:hover{transform:scale(1.05);background:#00c6ff;}
 
-.video-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:10px;
+.video-btn{
+background:red;
 }
 
-iframe{
-width:100%;
-height:200px;
+.progress{
+height:8px;
+background:#ffffff33;
 border-radius:10px;
-border:none;
+margin:10px 0;
+}
+
+.bar{
+height:100%;
+background:#00ffcc;
+width:0%;
+}
+
+#leaderboard{
+background:#00000033;
+padding:10px;
+border-radius:10px;
 }
 </style>
 </head>
@@ -68,17 +78,18 @@ border:none;
 
 <div class="container">
 
-<h1>🚀 Coding d&t</h1>
+<h1>🚀 Coding d&t PRO MAX</h1>
 
+<!-- LOGIN -->
 <div class="card">
 <input id="user" placeholder="Username">
 <button onclick="login()">Login</button>
 <p id="welcome"></p>
 </div>
 
+<!-- BACKGROUND -->
 <div class="card">
 <h3>🖼️ Background</h3>
-
 <input id="bgInput" placeholder="Image URL">
 <button onclick="setBg()">Apply URL</button>
 
@@ -86,86 +97,154 @@ border:none;
 <button onclick="uploadBg()">Upload Image</button>
 </div>
 
+<!-- SEARCH -->
 <div class="card">
-<input id="q" placeholder="Recherche langage...">
+<input id="q" placeholder="Recherche...">
 <button onclick="search()">Search</button>
+
+<button class="video-btn" onclick="openYT()">▶ YouTube</button>
+
 <div id="result"></div>
+</div>
+
+<!-- QUIZ -->
+<div class="card">
+<h3>🧠 Quiz</h3>
+<button onclick="startQuiz()">Start Quiz</button>
+<div id="quiz"></div>
+
+<h3>🏆 Leaderboard</h3>
+<div id="leaderboard"></div>
 </div>
 
 </div>
 
 <script>
 
-const YT_API = AIzaSyCN4R7OmMHyv1-cyQHPFcN7EMetNPv04KM;
-
-const resultEl = document.getElementById("result");
-
+/* LOGIN */
 function login(){
-let u = document.getElementById("user").value;
+let u=document.getElementById("user").value;
 localStorage.setItem("user",u);
-document.getElementById("welcome").innerText = "Bienvenue " + u;
+document.getElementById("welcome").innerText="Bienvenue "+u;
 }
 
+/* BACKGROUND URL */
 function setBg(){
-let url = document.getElementById("bgInput").value;
-document.body.style.background = `url(${url}) center/cover`;
+let url=document.getElementById("bgInput").value;
+document.body.style.background=`url(${url}) center/cover`;
 }
 
+/* BACKGROUND UPLOAD */
 function uploadBg(){
-let file = document.getElementById("fileBg").files[0];
+let file=document.getElementById("fileBg").files[0];
 if(!file) return;
 
-let reader = new FileReader();
-reader.onload = e=>{
-document.body.style.background = `url(${e.target.result}) center/cover`;
+let reader=new FileReader();
+reader.onload=e=>{
+document.body.style.background=`url(${e.target.result}) center/cover`;
 };
 reader.readAsDataURL(file);
 }
 
+/* SEARCH ONLY WIKIPEDIA */
 async function search(){
 
-let query = document.getElementById("q").value;
+let query=document.getElementById("q").value;
 if(!query) return;
 
-try{
-
-const WIKI = "https://fr.wikipedia.org/api/rest_v1/page/summary/";
-let r = await fetch(WIKI + encodeURIComponent(query));
-let d = await r.json();
-
-let videosHTML = "";
+const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
 try{
-let yt = await fetch(
-`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " programmation")}&type=video&maxResults=4&key=${YT_API}`
-);
+let r=await fetch(WIKI+encodeURIComponent(query));
+let d=await r.json();
 
-let data = await yt.json();
-
-if(data.items){
-videosHTML = `<div class="video-grid">` +
-data.items.map(v =>
-`<iframe src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>`
-).join("") +
-`</div>`;
-}
-
-}catch(e){
-videosHTML = "<p>YouTube indisponible</p>";
-}
-
-resultEl.innerHTML = `
+document.getElementById("result").innerHTML=`
 <h2>${d.title || query}</h2>
-<p>${d.extract || "Aucune description"}</p>
-<h3>🎥 Vidéos</h3>
-${videosHTML}
+<p>${d.extract || "Aucune description trouvée"}</p>
+`;
+}catch(e){
+document.getElementById("result").innerHTML="<p>❌ Erreur</p>";
+}
+
+}
+
+/* YOUTUBE BUTTON بدون API */
+function openYT(){
+let query=document.getElementById("q").value || "programmation";
+let url=`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+window.open(url,"_blank");
+}
+
+/* QUIZ */
+let quizData=[
+{q:"JS ?",o:["Web","Food","OS"],a:0},
+{q:"HTML ?",o:["Structure","DB","AI"],a:0},
+{q:"CSS ?",o:["Style","Server","Cloud"],a:0},
+{q:"Python ?",o:["Simple","Hard","Game"],a:0},
+{q:"SQL ?",o:["DB","Image","Music"],a:0}
+];
+
+let i=0,score=0,t,time=10;
+
+function startQuiz(){
+i=0;score=0;
+next();
+}
+
+function next(){
+clearInterval(t);
+
+if(i>=quizData.length){
+document.getElementById("quiz").innerHTML=`Score: ${score}/${quizData.length}`;
+saveScore(score);
+showLeaderboard();
+return;
+}
+
+let qd=quizData[i];
+
+document.getElementById("quiz").innerHTML=`
+<p>${qd.q}</p>
+<div class="progress"><div class="bar" id="bar"></div></div>
+${qd.o.map((x,idx)=>`<button onclick="ans(${idx})">${x}</button>`).join("<br>")}
 `;
 
-}catch(err){
-resultEl.innerHTML = "<p>❌ Erreur de recherche</p>";
+time=10;
+
+t=setInterval(()=>{
+time--;
+document.getElementById("bar").style.width=(time*10)+"%";
+if(time<=0){i++;next();}
+},1000);
 }
 
+function ans(x){
+if(x===quizData[i].a) score++;
+i++;
+next();
 }
+
+/* LEADERBOARD */
+function saveScore(s){
+let name=localStorage.getItem("user")||"Guest";
+let board=JSON.parse(localStorage.getItem("board")||"[]");
+
+board.push({name,score:s});
+board.sort((a,b)=>b.score-a.score);
+
+localStorage.setItem("board",JSON.stringify(board));
+}
+
+function showLeaderboard(){
+let board=JSON.parse(localStorage.getItem("board")||"[]");
+
+document.getElementById("leaderboard").innerHTML=
+board.slice(0,5)
+.map(x=>`🏅 ${x.name} : ${x.score}`)
+.join("<br>");
+}
+
+window.onload=showLeaderboard;
 
 </script>
 
