@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🚀 Coding d&t</title>
+<title>🚀 AI coding d&t</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -14,25 +14,14 @@ color:white;
 transition:0.5s;
 }
 
-/* ANIMATION */
+.container{max-width:900px;margin:auto;padding:20px}
+
 .card{
 background:rgba(255,255,255,0.08);
 padding:20px;
 margin-top:15px;
 border-radius:15px;
-opacity:0;
-transform:translateY(30px);
-animation:fadeIn 0.8s forwards;
 }
-
-@keyframes fadeIn{
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-.container{max-width:900px;margin:auto;padding:20px}
 
 input{
 width:100%;
@@ -43,18 +32,12 @@ margin:5px 0;
 }
 
 button{
-padding:10px;
+padding:10px 15px;
 border-radius:20px;
 border:none;
 background:#4facfe;
 color:white;
 cursor:pointer;
-transition:0.3s;
-}
-
-button:hover{
-transform:scale(1.1);
-background:#00c6ff;
 }
 
 .progress{
@@ -68,14 +51,6 @@ margin:10px 0;
 height:100%;
 background:#00ffcc;
 width:0%;
-}
-
-/* LEADERBOARD */
-#leaderboard{
-margin-top:10px;
-background:#00000033;
-padding:10px;
-border-radius:10px;
 }
 </style>
 </head>
@@ -93,11 +68,40 @@ border-radius:10px;
 <p id="welcome"></p>
 </div>
 
+<!-- BACKGROUND -->
+<div class="card">
+<h3>🖼️ Background</h3>
+
+<input id="bgInput" placeholder="Lien image...">
+<button onclick="setBg()">Apply URL</button>
+
+<br><br>
+
+<input type="file" id="uploadBg" accept="image/*">
+<button onclick="uploadBg()">Upload Image</button>
+
+</div>
+
 <!-- SEARCH -->
 <div class="card">
 <input id="q" placeholder="Recherche...">
 <button onclick="search()">Search</button>
+<button onclick="voice()">🎤</button>
 <div id="result"></div>
+</div>
+
+<!-- COMPARE -->
+<div class="card">
+<input id="a" placeholder="Langage 1">
+<input id="b" placeholder="Langage 2">
+<button onclick="compare()">Compare</button>
+<div id="cmp"></div>
+</div>
+
+<!-- FAVORITES -->
+<div class="card">
+<h3>⭐ Favoris</h3>
+<div id="fav"></div>
 </div>
 
 <!-- QUIZ -->
@@ -105,9 +109,6 @@ border-radius:10px;
 <h3>🧠 Quiz</h3>
 <button onclick="startQuiz()">Start</button>
 <div id="quiz"></div>
-
-<h3>🏆 Leaderboard</h3>
-<div id="leaderboard"></div>
 </div>
 
 </div>
@@ -121,26 +122,117 @@ localStorage.setItem("user",u);
 welcome.innerText="Bienvenue "+u;
 }
 
-/* SEARCH */
+/* BACKGROUND */
+function setBg(){
+let url = bgInput.value;
+document.body.style.background = `url(${url}) no-repeat center/cover`;
+localStorage.setItem("bg", url);
+}
+
+function uploadBg(){
+let file = uploadBg.files[0];
+if(!file) return;
+
+let reader = new FileReader();
+
+reader.onload = function(e){
+let img = e.target.result;
+document.body.style.background = `url(${img}) no-repeat center/cover`;
+localStorage.setItem("bg", img);
+};
+
+reader.readAsDataURL(file);
+}
+
+/* LOAD */
+window.onload = function(){
+let bg = localStorage.getItem("bg");
+if(bg){
+document.body.style.background = `url(${bg}) no-repeat center/cover`;
+}
+loadFav();
+}
+
+/* SEARCH + VIDEO */
 const WIKI="https://fr.wikipedia.org/api/rest_v1/page/summary/";
 
 async function search(){
-let r=await fetch(WIKI+q.value);
+let qv=q.value;
+
+let r=await fetch(WIKI+qv);
 let d=await r.json();
 
-result.innerHTML=`
-<h2>${d.title || ""}</h2>
-<p>${d.extract || ""}</p>
+let video = `
+<iframe width="100%" height="250"
+src="https://www.youtube.com/embed?listType=search&list=${qv} programmation"
+frameborder="0" allowfullscreen>
+</iframe>
 `;
+
+result.innerHTML=`
+<h2>${d.title || "Résultat"}</h2>
+<p>${d.extract || "Aucune info trouvée"}</p>
+
+<h3>🎥 Vidéo</h3>
+${video}
+
+<button onclick="save('${d.title}')">⭐ Ajouter</button>
+`;
+}
+
+/* COMPARE */
+function compare(){
+
+let lang1 = a.value.toLowerCase();
+let lang2 = b.value.toLowerCase();
+
+let data = {
+"javascript":"Langage web interactif",
+"python":"Langage simple utilisé en IA",
+"java":"Langage pour applications mobiles",
+"c++":"Langage performant pour systèmes",
+"php":"Langage serveur web"
+};
+
+cmp.innerHTML = `
+<h3>⚔️ Comparaison</h3>
+
+<p><b>${lang1}</b>: ${data[lang1] || "Inconnu"}</p>
+<p><b>${lang2}</b>: ${data[lang2] || "Inconnu"}</p>
+
+<hr>
+
+<ul>
+<li>Performance ⚡</li>
+<li>Facilité 🧠</li>
+<li>Utilisation 💼</li>
+</ul>
+
+<p>💡 Choix dépend du projet</p>
+`;
+}
+
+/* FAVORITES */
+function loadFav(){
+let f=JSON.parse(localStorage.getItem("fav")||"[]");
+fav.innerHTML=f.map(x=>`⭐ ${x}`).join("<br>");
+}
+
+function save(x){
+let f=JSON.parse(localStorage.getItem("fav")||"[]");
+f.push(x);
+localStorage.setItem("fav",JSON.stringify(f));
+loadFav();
 }
 
 /* QUIZ */
 let quizData=[
-{q:"JavaScript ?",o:["Web","Food","OS"],a:0},
-{q:"HTML ?",o:["Langage","DB","AI"],a:0},
-{q:"CSS ?",o:["Style","Serveur","Cloud"],a:0},
-{q:"Python ?",o:["Simple","Complexe","Jeu"],a:0},
-{q:"SQL ?",o:["DB","Image","Music"],a:0}
+{q:"JavaScript sert à ?",o:["Design","Interaction web","DB"],a:1},
+{q:"HTML est ?",o:["Langage","Email","OS"],a:0},
+{q:"CSS sert à ?",o:["Style","Serveur","AI"],a:0},
+{q:"Python est ?",o:["Simple","Complexe","Jeu"],a:0},
+{q:"SQL sert à ?",o:["Image","DB","Design"],a:1},
+{q:"Java est ?",o:["Mobile","Food","Music"],a:0}
 ];
 
 let i=0,score=0,time=10,t;
@@ -155,8 +247,6 @@ clearInterval(t);
 
 if(i>=quizData.length){
 quiz.innerHTML=`Score: ${score}/${quizData.length}`;
-saveScore(score);
-showLeaderboard();
 return;
 }
 
@@ -186,30 +276,16 @@ i++;
 next();
 }
 
-/* LEADERBOARD */
-function saveScore(s){
-let name=localStorage.getItem("user") || "Guest";
-
-let board=JSON.parse(localStorage.getItem("board")||"[]");
-
-board.push({name,score:s});
-
-board.sort((a,b)=>b.score-a.score);
-
-localStorage.setItem("board",JSON.stringify(board));
+/* VOICE */
+function voice(){
+let r=new webkitSpeechRecognition();
+r.lang="fr-FR";
+r.onresult=e=>{
+q.value=e.results[0][0].transcript;
+search();
+};
+r.start();
 }
-
-function showLeaderboard(){
-let board=JSON.parse(localStorage.getItem("board")||"[]");
-
-leaderboard.innerHTML = board
-.slice(0,5)
-.map(x=>`🏅 ${x.name} : ${x.score}`)
-.join("<br>");
-}
-
-/* LOAD */
-window.onload=showLeaderboard;
 
 </script>
 
