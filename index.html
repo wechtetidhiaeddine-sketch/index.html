@@ -86,6 +86,18 @@
         #ytBtn {
             position: fixed; bottom: 30px; right: 30px; background: #ff0000; padding: 15px 25px;
             border-radius: 50px; cursor: pointer; font-weight: bold; display: none; z-index: 999;
+                    /* --- WIDGET INSTAGRAM --- */
+        .insta-btn {
+            position: fixed; bottom: 25px; left: 25px;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            padding: 12px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px;
+            color: white; text-decoration: none; font-weight: bold; z-index: 999;
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.5);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .card { animation: fadeIn 0.5s ease-out both; }
         }
     </style>
 </head>
@@ -137,6 +149,9 @@
 </div>
 
 <div id="ytBtn" onclick="openYT()">▶ Voir sur YouTube</div>
+<a href="https://www.instagram.com/d_h_i_a_1_" target="_blank" class="insta-btn">
+    <i class="fab fa-instagram"></i> Suivre Dhia
+</a>
 
 <script>
     // --- COLLECTION MISE À JOUR & CORRIGÉE ---
