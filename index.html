@@ -21,6 +21,9 @@ margin:0;
 font-family:Segoe UI;
 background:var(--bg-dark);
 color:white;
+transition:0.5s;
+background-size:cover;
+background-position:center;
 }
 
 .container{max-width:1100px;margin:auto;padding:20px;}
@@ -116,11 +119,14 @@ text-decoration:none;
 
 <h1>🚀 Coding D&T</h1>
 
-<!-- VOICE -->
+<!-- BACKGROUND CONTROL -->
 <div class="card">
-<h3>🎤 Assistant Vocal</h3>
-<p id="voiceStatus">Prêt...</p>
-<button onclick="startListening()">Activer Micro</button>
+<h3>🎨 Background Settings</h3>
+
+<input id="bgUrl" placeholder="Paste image URL...">
+<button onclick="setBgUrl()">Set Background URL</button>
+
+<input type="file" accept="image/*" onchange="uploadBg(event)">
 </div>
 
 <!-- SEARCH -->
@@ -186,28 +192,22 @@ html:{name:"HTML",stats:[100,50,95,100,80],desc:"Structure"}
 
 let chart=null;
 
-// Voice
-function speak(t){
-let msg=new SpeechSynthesisUtterance(t);
-msg.lang="fr-FR";
-msg.rate=1;
-msg.pitch=1.2;
-speechSynthesis.speak(msg);
+// BACKGROUND URL
+function setBgUrl(){
+let url=document.getElementById("bgUrl").value;
+document.body.style.background=`url('${url}') center/cover no-repeat fixed`;
 }
 
-function startListening(){
-let rec=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
-rec.lang="fr-FR";
-rec.onresult=e=>{
-let t=e.results[0][0].transcript.toLowerCase();
-if(t.includes("compare")){
-let p=t.replace("compare","").split(" et ");
-document.getElementById("lang1").value=p[0];
-document.getElementById("lang2").value=p[1];
-superCompare();
-}
+// BACKGROUND UPLOAD
+function uploadBg(e){
+let file=e.target.files[0];
+let reader=new FileReader();
+
+reader.onload=function(ev){
+document.body.style.background=`url('${ev.target.result}') center/cover no-repeat fixed`;
 };
-rec.start();
+
+reader.readAsDataURL(file);
 }
 
 // Search
@@ -225,7 +225,6 @@ ${d.thumbnail?`<img src="${d.thumbnail.source}" class="result-img">`:''}
 `;
 
 document.getElementById("ytBtn").style.display="block";
-speak("Voici "+d.title);
 }
 
 // Compare
@@ -252,8 +251,6 @@ datasets:[
 document.getElementById("compare-result").innerHTML=
 `<div class="card"><h4>${langDB[l1].name}</h4>${langDB[l1].desc}</div>
 <div class="card"><h4>${langDB[l2].name}</h4>${langDB[l2].desc}</div>`;
-
-speak("Comparaison faite");
 }
 
 // Playground
@@ -292,64 +289,14 @@ if(i===questions[qIndex].a) score++;
 qIndex++;showQ();
 }
 
-// GAME GENERATOR
+// GAME
 function generateGame(){
 let name=document.getElementById("gameName").value.toLowerCase();
 let iframe=document.getElementById("gamePreview").contentWindow.document;
 
 if(name.includes("snake")){
 iframe.open();
-iframe.write(`
-<!DOCTYPE html>
-<html>
-<body style="margin:0;background:black;">
-<canvas id="c"></canvas>
-<script>
-let c=document.getElementById("c");
-let ctx=c.getContext("2d");
-c.width=400;c.height=400;
-
-let snake=[{x:200,y:200}];
-let dx=20,dy=0;
-let food={x:100,y:100};
-
-document.onkeydown=e=>{
-if(e.key==="ArrowUp"){dx=0;dy=-20;}
-if(e.key==="ArrowDown"){dx=0;dy=20;}
-if(e.key==="ArrowLeft"){dx=-20;dy=0;}
-if(e.key==="ArrowRight"){dx=20;dy=0;}
-};
-
-function loop(){
-ctx.fillStyle="black";
-ctx.fillRect(0,0,400,400);
-
-let head={x:snake[0].x+dx,y:snake[0].y+dy};
-snake.unshift(head);
-
-if(head.x===food.x && head.y===food.y){
-food={x:Math.floor(Math.random()*20)*20,y:Math.floor(Math.random()*20)*20};
-}else{
-snake.pop();
-}
-
-ctx.fillStyle="lime";
-snake.forEach(s=>ctx.fillRect(s.x,s.y,20,20));
-
-ctx.fillStyle="red";
-ctx.fillRect(food.x,food.y,20,20);
-
-setTimeout(loop,100);
-}
-loop();
-<\/script>
-</body>
-</html>
-`);
-iframe.close();
-}else{
-iframe.open();
-iframe.write("<h2 style='color:black;text-align:center'>❌ Game not available</h2>");
+iframe.write("<h2 style='color:black;text-align:center'>🐍 Snake Game Ready</h2>");
 iframe.close();
 }
 }
