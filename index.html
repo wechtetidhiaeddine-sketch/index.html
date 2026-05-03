@@ -92,7 +92,6 @@ cursor:pointer;
 font-weight:bold;
 z-index:999;
 }
-#ytBtn:hover{transform:scale(1.1);}
 
 .insta-btn{
 position:fixed;
@@ -119,7 +118,7 @@ text-decoration:none;
 
 <h1>🚀 Coding D&T</h1>
 
-<!-- BACKGROUND CONTROL -->
+<!-- BACKGROUND -->
 <div class="card">
 <h3>🎨 Background Settings</h3>
 
@@ -166,12 +165,14 @@ text-decoration:none;
 <button onclick="startQuiz()">Start</button>
 </div>
 
-<!-- GAME GENERATOR -->
+<!-- GAME (FINAL FIX) -->
 <div class="card">
-<h3>🎮 Game Generator</h3>
-<input id="gameName" placeholder="ex: snake">
-<button onclick="generateGame()">Generate Game</button>
-<iframe id="gamePreview" style="width:100%;height:300px;border:none;background:white;"></iframe>
+<h3>🎮 Game</h3>
+
+<p>Game Status: <b>Ready to Play</b></p>
+
+<button onclick="playGame()">▶ Play</button>
+
 </div>
 
 </div>
@@ -183,22 +184,13 @@ Instagram
 </a>
 
 <script>
-// DB
-const langDB={
-javascript:{name:"JavaScript",stats:[95,90,85,98,90],desc:"Langage web"},
-python:{name:"Python",stats:[90,70,95,95,95],desc:"IA king"},
-html:{name:"HTML",stats:[100,50,95,100,80],desc:"Structure"}
-};
 
-let chart=null;
-
-// BACKGROUND URL
+// 🌐 BACKGROUND
 function setBgUrl(){
 let url=document.getElementById("bgUrl").value;
 document.body.style.background=`url('${url}') center/cover no-repeat fixed`;
 }
 
-// BACKGROUND UPLOAD
 function uploadBg(e){
 let file=e.target.files[0];
 let reader=new FileReader();
@@ -210,11 +202,13 @@ document.body.style.background=`url('${ev.target.result}') center/cover no-repea
 reader.readAsDataURL(file);
 }
 
-// Search
+// 🔎 SEARCH
 async function superSearch(){
 let q=document.getElementById("q").value;
 let res=document.getElementById("result");
+
 res.innerHTML="Loading...";
+
 let r=await fetch("https://fr.wikipedia.org/api/rest_v1/page/summary/"+q);
 let d=await r.json();
 
@@ -227,17 +221,24 @@ ${d.thumbnail?`<img src="${d.thumbnail.source}" class="result-img">`:''}
 document.getElementById("ytBtn").style.display="block";
 }
 
-// Compare
+// ⚔️ COMPARE
+const langDB={
+javascript:{name:"JavaScript",stats:[95,90,85,98,90],desc:"Web"},
+python:{name:"Python",stats:[90,70,95,95,95],desc:"AI"},
+html:{name:"HTML",stats:[100,50,95,100,80],desc:"Structure"}
+};
+
+let chart=null;
+
 function superCompare(){
 let l1=document.getElementById("lang1").value.toLowerCase().replace(/\s/g,'');
 let l2=document.getElementById("lang2").value.toLowerCase().replace(/\s/g,'');
 
 if(!langDB[l1]||!langDB[l2]) return alert("Langage inconnu");
 
-let ctx=document.getElementById("compareChart");
 if(chart) chart.destroy();
 
-chart=new Chart(ctx,{
+chart=new Chart(document.getElementById("compareChart"),{
 type:'radar',
 data:{
 labels:['Power','Speed','Easy','Popular','Salary'],
@@ -247,20 +248,16 @@ datasets:[
 ]
 }
 });
-
-document.getElementById("compare-result").innerHTML=
-`<div class="card"><h4>${langDB[l1].name}</h4>${langDB[l1].desc}</div>
-<div class="card"><h4>${langDB[l2].name}</h4>${langDB[l2].desc}</div>`;
 }
 
-// Playground
+// 💻 PLAYGROUND
 function runCode(){
 let code=document.getElementById("html-code").value;
 let doc=document.getElementById("code-preview").contentWindow.document;
 doc.open();doc.write(code);doc.close();
 }
 
-// Quiz
+// 🧠 QUIZ (simple)
 let qIndex=0,score=0;
 const questions=[
 {q:"Langage IA?",o:["HTML","Python"],a:1},
@@ -273,15 +270,16 @@ qIndex=0;score=0;showQ();
 
 function showQ(){
 let q=questions[qIndex];
-let div=document.getElementById("quiz");
 
 if(!q){
-div.innerHTML=`Score ${score}`;
+document.getElementById("quiz").innerHTML=`Score ${score}`;
 return;
 }
 
-div.innerHTML=`<p>${q.q}</p>
-${q.o.map((o,i)=>`<button onclick="check(${i})">${o}</button>`).join('')}`;
+document.getElementById("quiz").innerHTML=`
+<p>${q.q}</p>
+${q.o.map((o,i)=>`<button onclick="check(${i})">${o}</button>`).join('')}
+`;
 }
 
 function check(i){
@@ -289,23 +287,18 @@ if(i===questions[qIndex].a) score++;
 qIndex++;showQ();
 }
 
-// GAME
-function generateGame(){
-let name=document.getElementById("gameName").value.toLowerCase();
-let iframe=document.getElementById("gamePreview").contentWindow.document;
+// 🎮 GAME LINK (FINAL)
+const GAME_URL = "https://poki.com/fr"; // 👈 ضع رابط لعبتك هنا
 
-if(name.includes("snake")){
-iframe.open();
-iframe.write("<h2 style='color:black;text-align:center'>🐍 Snake Game Ready</h2>");
-iframe.close();
-}
+function playGame(){
+window.open(GAME_URL,"_blank");
 }
 
-// YT
+// ▶ YOUTUBE
 function openYT(){
-let q=document.getElementById("q").value;
-window.open("https://youtube.com/results?search_query="+q);
+window.open("https://youtube.com/results?search_query="+document.getElementById("q").value);
 }
+
 </script>
 
 </body>
