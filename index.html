@@ -60,6 +60,7 @@ border:1px solid rgba(255,255,255,0.2);
 background:rgba(0,0,0,0.3);
 color:white;
 margin:10px 0;
+box-sizing: border-box;
 }
 
 button{
@@ -70,6 +71,8 @@ background:linear-gradient(45deg,var(--secondary),var(--primary));
 color:white;
 cursor:pointer;
 font-weight:bold;
+margin-top: 5px;
+margin-right: 5px;
 }
 
 button:hover{transform:scale(1.05);}
@@ -104,11 +107,14 @@ color:white;
 text-decoration:none;
 }
 
-.chart-container{max-width:500px;margin:auto;}
+.chart-container{max-width:500px;margin:auto;margin-top:20px;}
 
 .grid-compare{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
 
-#code-preview{width:100%;height:200px;border:none;background:white;}
+#code-preview{width:100%;height:200px;border:none;background:white;border-radius:15px;}
+
+.quiz-question { font-size: 1.2rem; margin-bottom: 15px; }
+.quiz-btn { display: inline-block; width: 48%; }
 </style>
 </head>
 
@@ -118,27 +124,23 @@ text-decoration:none;
 
 <h1>🚀 Coding D&T</h1>
 
-<!-- BACKGROUND -->
 <div class="card">
 <h3>🎨 Background Settings</h3>
-
 <input id="bgUrl" placeholder="Paste image URL...">
 <button onclick="setBgUrl()">Set Background URL</button>
-
 <input type="file" accept="image/*" onchange="uploadBg(event)">
 </div>
 
-<!-- SEARCH -->
 <div class="card">
-<h3>🔎 Recherche IA</h3>
+<h3>🔎 Recherche </h3>
 <input id="q" placeholder="ex: Python">
 <button onclick="superSearch()">Analyser</button>
 <div id="result"></div>
 </div>
 
-<!-- COMPARE -->
 <div class="card">
 <h3>⚔️ Comparaison</h3>
+<p style="font-size: 0.9rem; color: #ccc;">Essayez: Python, JavaScript, HTML, CSS, Java, C++, PHP...</p>
 <input id="lang1" placeholder="Langage 1">
 <input id="lang2" placeholder="Langage 2">
 <button onclick="superCompare()">Comparer</button>
@@ -150,7 +152,6 @@ text-decoration:none;
 <div id="compare-result" class="grid-compare"></div>
 </div>
 
-<!-- PLAYGROUND -->
 <div class="card">
 <h3>💻 Code Playground</h3>
 <textarea id="html-code"><h2>Hello Dhia 🔥</h2></textarea>
@@ -158,21 +159,18 @@ text-decoration:none;
 <iframe id="code-preview"></iframe>
 </div>
 
-<!-- QUIZ -->
 <div class="card">
-<h3>🧠 Quiz</h3>
-<div id="quiz"></div>
-<button onclick="startQuiz()">Start</button>
+<h3>🧠 Quiz (10 Questions Aléatoires)</h3>
+<div id="quiz">
+    <p>Testez vos connaissances en programmation !</p>
+</div>
+<button id="startQuizBtn" onclick="startQuiz()">Start Quiz</button>
 </div>
 
-<!-- GAME (FINAL FIX) -->
 <div class="card">
 <h3>🎮 Game</h3>
-
 <p>Game Status: <b>Ready to Play</b></p>
-
 <button onclick="playGame()">▶ Play</button>
-
 </div>
 
 </div>
@@ -185,6 +183,13 @@ Instagram
 
 <script>
 
+// 🎮 GAME LINK (مخفي داخل الكود)
+const gameLink = "https://poki.com/";
+
+function playGame(){
+    window.open(gameLink, "_blank");
+}
+
 // 🌐 BACKGROUND
 function setBgUrl(){
 let url=document.getElementById("bgUrl").value;
@@ -194,11 +199,9 @@ document.body.style.background=`url('${url}') center/cover no-repeat fixed`;
 function uploadBg(e){
 let file=e.target.files[0];
 let reader=new FileReader();
-
 reader.onload=function(ev){
 document.body.style.background=`url('${ev.target.result}') center/cover no-repeat fixed`;
 };
-
 reader.readAsDataURL(file);
 }
 
@@ -206,46 +209,93 @@ reader.readAsDataURL(file);
 async function superSearch(){
 let q=document.getElementById("q").value;
 let res=document.getElementById("result");
-
+if(!q) return alert("Veuillez entrer un terme à rechercher.");
 res.innerHTML="Loading...";
-
+try {
 let r=await fetch("https://fr.wikipedia.org/api/rest_v1/page/summary/"+q);
 let d=await r.json();
-
 res.innerHTML=`
-<h3>${d.title}</h3>
-<p>${d.extract}</p>
+<h3>${d.title || 'Non trouvé'}</h3>
+<p>${d.extract || 'Aucune description disponible.'}</p>
 ${d.thumbnail?`<img src="${d.thumbnail.source}" class="result-img">`:''}
 `;
-
 document.getElementById("ytBtn").style.display="block";
+} catch(err) {
+res.innerHTML="<p style='color:red;'>Erreur de recherche. Vérifiez votre connexion.</p>";
+}
 }
 
 // ⚔️ COMPARE
 const langDB={
 javascript:{name:"JavaScript",stats:[95,90,85,98,90],desc:"Web"},
-python:{name:"Python",stats:[90,70,95,95,95],desc:"AI"},
-html:{name:"HTML",stats:[100,50,95,100,80],desc:"Structure"}
+python:{name:"Python",stats:[90,70,95,95,95],desc:"AI / Backend"},
+html:{name:"HTML",stats:[100,50,95,100,80],desc:"Structure Web"},
+css:{name:"CSS",stats:[90,60,90,95,75],desc:"Design Web"},
+java:{name:"Java",stats:[85,85,70,90,95],desc:"Entreprise / Mobile"},
+cpp:{name:"C++",stats:[95,100,40,80,95],desc:"Jeux / Système"},
+c:{name:"C",stats:[100,100,30,70,90],desc:"Système"},
+php:{name:"PHP",stats:[80,75,85,85,80],desc:"Web Backend"},
+ruby:{name:"Ruby",stats:[80,70,85,75,85],desc:"Web Backend"},
+swift:{name:"Swift",stats:[85,90,80,80,90],desc:"iOS Apps"},
+go:{name:"Go",stats:[90,95,75,80,95],desc:"Cloud / Backend"}
 };
 
 let chart=null;
 
-function superCompare(){
-let l1=document.getElementById("lang1").value.toLowerCase().replace(/\s/g,'');
-let l2=document.getElementById("lang2").value.toLowerCase().replace(/\s/g,'');
+function normalizeLang(lang) {
+    let l = lang.toLowerCase().replace(/\s/g, '');
+    if (l === 'c++') return 'cpp';
+    if (l === 'js') return 'javascript';
+    return l;
+}
 
-if(!langDB[l1]||!langDB[l2]) return alert("Langage inconnu");
+function superCompare(){
+let rawL1 = document.getElementById("lang1").value;
+let rawL2 = document.getElementById("lang2").value;
+if(!rawL1 || !rawL2) return alert("Veuillez entrer deux langages.");
+
+let l1 = normalizeLang(rawL1);
+let l2 = normalizeLang(rawL2);
+
+if(!langDB[l1] || !langDB[l2]) {
+    return alert(`Langage introuvable. Essayez parmi: JavaScript, Python, HTML, CSS, Java, C++, PHP, Swift, Go...`);
+}
 
 if(chart) chart.destroy();
 
 chart=new Chart(document.getElementById("compareChart"),{
 type:'radar',
 data:{
-labels:['Power','Speed','Easy','Popular','Salary'],
+labels:['Puissance','Vitesse','Facilité','Popularité','Salaire'],
 datasets:[
-{label:langDB[l1].name,data:langDB[l1].stats},
-{label:langDB[l2].name,data:langDB[l2].stats}
+{
+    label: langDB[l1].name,
+    data: langDB[l1].stats,
+    backgroundColor: 'rgba(0, 242, 254, 0.4)',
+    borderColor: '#00f2fe',
+    borderWidth: 2
+},
+{
+    label: langDB[l2].name,
+    data: langDB[l2].stats,
+    backgroundColor: 'rgba(112, 0, 255, 0.4)',
+    borderColor: '#7000ff',
+    borderWidth: 2
+}
 ]
+},
+options: {
+    scales: {
+        r: {
+            angleLines: { color: 'rgba(255,255,255,0.2)' },
+            grid: { color: 'rgba(255,255,255,0.2)' },
+            pointLabels: { color: 'white', font: { size: 14 } },
+            ticks: { display: false, min: 0, max: 100 }
+        }
+    },
+    plugins: {
+        legend: { labels: { color: 'white' } }
+    }
 }
 });
 }
@@ -257,46 +307,57 @@ let doc=document.getElementById("code-preview").contentWindow.document;
 doc.open();doc.write(code);doc.close();
 }
 
-// 🧠 QUIZ (simple)
+// 🧠 QUIZ 
 let qIndex=0,score=0;
-const questions=[
-{q:"Langage IA?",o:["HTML","Python"],a:1},
-{q:"Structure Web?",o:["CSS","HTML"],a:1}
+let selectedQuestions = [];
+
+const allQuestions=[
+{q:"Quel langage est principalement utilisé pour l'Intelligence Artificielle ?", o:["Java","Python","C++","HTML"], a:1},
+{q:"Que signifie HTML ?", o:["Hyper Text Markup Language","High Text Machine Language","Hyperlinks Text Mark Language"], a:0},
+{q:"Lequel de ces langages sert à styliser une page web ?", o:["Python","CSS","PHP","SQL"], a:1},
+{q:"Quel langage est la base de développement d'Android ?", o:["Swift","Java/Kotlin","Ruby","C#"], a:1},
+{q:"Git est un système de...", o:["Base de données","Contrôle de version","Serveur web","Réseau"], a:1},
+{q:"Que signifie SQL ?", o:["Structured Query Language","Strong Question Language","Simple Query Logic"], a:0},
+{q:"Lequel de ces éléments est un framework CSS ?", o:["React","Laravel","Bootstrap","Django"], a:2},
+{q:"Lequel N'EST PAS un langage de programmation ?", o:["Python","HTML","C++","JavaScript"], a:1},
+{q:"Quel symbole est utilisé pour faire des commentaires sur une ligne en Python ?", o:["//","/*","#","<!-- -->"], a:2}
 ];
 
 function startQuiz(){
-qIndex=0;score=0;showQ();
+    score = 0;
+    qIndex = 0;
+
+    selectedQuestions = [...allQuestions]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 10);
+
+    showQuestion();
 }
 
-function showQ(){
-let q=questions[qIndex];
+function showQuestion(){
+    let quiz = document.getElementById("quiz");
 
-if(!q){
-document.getElementById("quiz").innerHTML=`Score ${score}`;
-return;
+    if(qIndex >= selectedQuestions.length){
+        quiz.innerHTML = `<h3>✅ Score: ${score}/${selectedQuestions.length}</h3>`;
+        return;
+    }
+
+    let q = selectedQuestions[qIndex];
+
+    quiz.innerHTML = `
+        <div class="quiz-question">${q.q}</div>
+        ${q.o.map((opt, i) => 
+            `<button class="quiz-btn" onclick="checkAnswer(${i})">${opt}</button>`
+        ).join("")}
+    `;
 }
 
-document.getElementById("quiz").innerHTML=`
-<p>${q.q}</p>
-${q.o.map((o,i)=>`<button onclick="check(${i})">${o}</button>`).join('')}
-`;
-}
-
-function check(i){
-if(i===questions[qIndex].a) score++;
-qIndex++;showQ();
-}
-
-// 🎮 GAME LINK (FINAL)
-const GAME_URL = "https://poki.com/fr"; // 👈 ضع رابط لعبتك هنا
-
-function playGame(){
-window.open(GAME_URL,"_blank");
-}
-
-// ▶ YOUTUBE
-function openYT(){
-window.open("https://youtube.com/results?search_query="+document.getElementById("q").value);
+function checkAnswer(i){
+    if(i === selectedQuestions[qIndex].a){
+        score++;
+    }
+    qIndex++;
+    showQuestion();
 }
 
 </script>
