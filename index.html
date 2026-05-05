@@ -224,7 +224,16 @@ document.getElementById("ytBtn").style.display="block";
 res.innerHTML="<p style='color:red;'>Erreur de recherche. Vérifiez votre connexion.</p>";
 }
 }
-
+// ▶️ YOUTUBE BUTTON FIX
+function openYT(){
+    let q = document.getElementById("q").value;
+    if(!q){
+        alert("اكتب حاجة باش نبحثها في YouTube 🎬");
+        return;
+    }
+    let url = "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
+    window.open(url, "_blank");
+}
 // ⚔️ COMPARE
 const langDB={
 javascript:{name:"JavaScript",stats:[95,90,85,98,90],desc:"Web"},
